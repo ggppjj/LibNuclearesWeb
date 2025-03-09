@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsAotCompatible>true</IsAotCompatible>
+        <Title>LibNuclearesWeb</Title>
+        <VersionPrefix>0.1.0.0</VersionPrefix>
+        <VersionSuffix>beta</VersionSuffix>
+        <PackageProjectUrl>https://github.com/ggppjj/LibNuclearesWeb</PackageProjectUrl>
+        <NuGetAuditMode>direct</NuGetAuditMode>
+        <Authors>ggppjj</Authors>
+        <Description>A library to interact with the webserver for the game Nucleares on Steam. The webserver must first be enabled in-game before any of the endpoints are available for use by this library.</Description>
+        <PackageTags>nucleares;modding;</PackageTags>
+        <PackageReleaseNotes>Initial Release.</PackageReleaseNotes>
+    </PropertyGroup>
+</Project>
