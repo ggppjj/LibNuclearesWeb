@@ -2,6 +2,8 @@
 # LibNuclearesWeb
 [![GitHub License](https://img.shields.io/github/license/ggppjj/LibNuclearesWeb)](./LICENSE )
 ### Nucleares Webserver Library
+#### !!! WIP, NOT AT ALL READY FOR ANYTHING YET. !!!
+
 This is an experimental library for interacting with the webserver for Nucleares, a game on Steam about managing an experimental Pressurized Water Reactor.
 
 It aims to:
@@ -12,7 +14,7 @@ It aims to:
 * Be AOT compatible.
 * Be generally serialiazable.
 
-Current usage example, for an app targeting localhost:
+Current usage example, for an app targeting localhost with auto-refresh enabled:
 ```csharp
 using System;
 using System.Threading.Tasks;
@@ -29,6 +31,10 @@ Console.WriteLine(nucleares.Plant.MainReactor.Core.Pressure);
 If you wish to use your own network location or port, or to not load data automatically:
 ```csharp
 var nucleares = new Nucleares(networkLocation:"localhost", port:5000, refreshAutomatically:false);
+
+var generator0Voltage = await nucleares.Plant.SteamGeneratorList[0].RefreshAllDataAsync().ActivePowerV;
+
+Console.WriteLine(generator0Voltage);
 ```
 
 This library is not affiliated with the game or its developers. It is an independent project.

@@ -135,34 +135,9 @@ public partial class Nucleares
                     RefreshAllData();
             }
 
-            public void RefreshAllData(CancellationToken cancellationToken = default)
-            {
-                if (_nucleares == null)
-                    throw new InvalidOperationException("Nucleares object is null");
-                var kw = _nucleares.LoadDataFromGame(
-                    $"GENERATOR_{GeneratorId}_KW",
-                    cancellationToken
-                );
-                var v = _nucleares.LoadDataFromGame(
-                    $"GENERATOR_{GeneratorId}_V",
-                    cancellationToken
-                );
-                var a = _nucleares.LoadDataFromGame(
-                    $"GENERATOR_{GeneratorId}_A",
-                    cancellationToken
-                );
-                var hz = _nucleares.LoadDataFromGame(
-                    $"GENERATOR_{GeneratorId}_HZ",
-                    cancellationToken
-                );
-                var breaker = _nucleares.LoadDataFromGame(
-                    $"GENERATOR_{GeneratorId}_BREAKER",
-                    cancellationToken
-                );
-                SetAllData(kw, v, a, hz, breaker);
-            }
-
-            public async Task RefreshAllDataAsync(CancellationToken cancellationToken = default)
+            public async Task<SteamGenerators> RefreshAllDataAsync(
+                CancellationToken cancellationToken = default
+            )
             {
                 if (_nucleares == null)
                     throw new InvalidOperationException("Nucleares object is null");
@@ -186,7 +161,7 @@ public partial class Nucleares
                     $"GENERATOR_{GeneratorId}_BREAKER",
                     cancellationToken
                 );
-                await Task.WhenAll(kwTask, vTask, aTask, hzTask, breakerTask);
+                await Task.WhenAll(kwTask, vTask, aTask, hzTask, breakerTask).ConfigureAwait(false);
                 SetAllData(
                     kwTask.Result,
                     vTask.Result,
@@ -194,6 +169,14 @@ public partial class Nucleares
                     hzTask.Result,
                     breakerTask.Result
                 );
+                return this;
+            }
+
+            public SteamGenerators RefreshAllData(CancellationToken cancellationToken = default)
+            {
+                return Task.Run(() => RefreshAllDataAsync(cancellationToken))
+                    .GetAwaiter()
+                    .GetResult();
             }
         }
     }
