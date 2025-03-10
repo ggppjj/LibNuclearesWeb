@@ -2,7 +2,7 @@
 
 public partial class NuclearesWeb
 {
-    public partial class Plants
+    public partial class Plant
     {
         public partial class SteamTurbine { }
     }

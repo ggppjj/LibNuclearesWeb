@@ -4,7 +4,8 @@ public partial class NuclearesWeb
 {
     private static readonly HttpClient httpClient = new();
     private readonly SemaphoreSlim semaphore = new(10, 10);
-
+    public Plant MainPlant { get; }
+    public World MainWorld { get; }
     public bool AutoRefresh { get; set; } = true;
 
     private string _networkLocation = "127.0.0.1";
@@ -18,6 +19,7 @@ public partial class NuclearesWeb
                 RefreshAllData();
         }
     }
+
     private int _port = 8785;
     public int Port
     {
@@ -30,13 +32,10 @@ public partial class NuclearesWeb
         }
     }
 
-    public Plants Plant { get; }
-    public Worlds World { get; }
-
     public NuclearesWeb(string? networkLocation = null, int? port = null, bool? autorefresh = null)
     {
-        Plant = new(this);
-        World = new(this);
+        MainPlant = new(this);
+        MainWorld = new(this);
         if (autorefresh != null)
             AutoRefresh = autorefresh.Value;
         if (networkLocation != null)
@@ -47,16 +46,20 @@ public partial class NuclearesWeb
             RefreshAllData();
     }
 
-    public void RefreshAllData()
+    public NuclearesWeb RefreshAllData(CancellationToken cancellationToken = default)
     {
-        Plant.RefreshAllData();
-        World.RefreshAllData();
+        MainPlant.RefreshAllData(cancellationToken);
+        MainWorld.RefreshAllData(cancellationToken);
+        return this;
     }
 
-    public async Task RefreshAllDataAsync(CancellationToken cancellationToken = default)
+    public async Task<NuclearesWeb> RefreshAllDataAsync(
+        CancellationToken cancellationToken = default
+    )
     {
-        await Plant.RefreshAllDataAsync(cancellationToken);
-        await World.RefreshAllDataAsync(cancellationToken);
+        await MainPlant.RefreshAllDataAsync(cancellationToken);
+        await MainWorld.RefreshAllDataAsync(cancellationToken);
+        return this;
     }
 
     public async Task<string> LoadDataFromGameAsync(
