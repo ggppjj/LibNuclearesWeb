@@ -2,7 +2,7 @@
 
 namespace LibNuclearesWeb;
 
-public partial class Nucleares
+public partial class NuclearesWeb
 {
     public partial class Plants
     {
@@ -10,10 +10,10 @@ public partial class Nucleares
         {
             public partial class Cores
             {
-                public class Coolant(Nucleares nucleares)
+                public class ControlRods(NuclearesWeb nucleares)
                 {
                     [JsonIgnore]
-                    private readonly Nucleares _nucleares = nucleares;
+                    private readonly NuclearesWeb _nucleares = nucleares;
                 }
             }
         }

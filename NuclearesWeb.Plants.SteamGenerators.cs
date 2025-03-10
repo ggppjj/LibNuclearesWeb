@@ -5,14 +5,14 @@ using System.Text.Json.Serialization;
 
 namespace LibNuclearesWeb;
 
-public partial class Nucleares
+public partial class NuclearesWeb
 {
     public partial class Plants
     {
         public class SteamGenerators : INotifyPropertyChanged
         {
             [JsonIgnore]
-            private Nucleares? _nucleares;
+            private NuclearesWeb? _nucleares;
 
             [JsonInclude]
             public int GeneratorId { get; private set; } = -1;
@@ -106,7 +106,7 @@ public partial class Nucleares
 
             public SteamGenerators() { }
 
-            internal SteamGenerators(Nucleares nucleares, int generatorId)
+            internal SteamGenerators(NuclearesWeb nucleares, int generatorId)
             {
                 _nucleares = nucleares;
                 GeneratorId = generatorId;
@@ -128,7 +128,7 @@ public partial class Nucleares
                 BreakerStatus = breaker;
             }
 
-            public void Init(Nucleares nucleares)
+            public void Init(NuclearesWeb nucleares)
             {
                 _nucleares = nucleares;
                 if (_nucleares.AutoRefresh)
@@ -140,7 +140,7 @@ public partial class Nucleares
             )
             {
                 if (_nucleares == null)
-                    throw new InvalidOperationException("Nucleares object is null");
+                    throw new InvalidOperationException("NuclearesWeb object is null");
                 var kwTask = _nucleares.LoadDataFromGameAsync(
                     $"GENERATOR_{GeneratorId}_KW",
                     cancellationToken

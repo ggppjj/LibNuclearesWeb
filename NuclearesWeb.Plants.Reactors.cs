@@ -2,17 +2,19 @@
 
 namespace LibNuclearesWeb;
 
-public partial class Nucleares
+public partial class NuclearesWeb
 {
     public partial class Plants
     {
         public partial class Reactors
         {
             [JsonIgnore]
-            private readonly Nucleares _nucleares;
+            private readonly NuclearesWeb? _nucleares;
             public Cores Core { get; } = new();
 
-            internal Reactors(Nucleares nucleares)
+            public Reactors() { }
+
+            internal Reactors(NuclearesWeb nucleares)
             {
                 _nucleares = nucleares;
             }

@@ -2,13 +2,13 @@
 
 namespace LibNuclearesWeb;
 
-public partial class Nucleares
+public partial class NuclearesWeb
 {
-    public partial class Plants(Nucleares nucleares)
+    public partial class Plants(NuclearesWeb nuclearesWeb)
     {
         [JsonIgnore]
-        private readonly Nucleares _nucleares = nucleares;
-        public Reactors MainReactor { get; } = new(nucleares);
+        private readonly NuclearesWeb _nuclearesWeb = nuclearesWeb;
+        public Reactors MainReactor { get; } = new();
         public List<SteamGenerators> SteamGeneratorList { get; } = [];
 
         public void RefreshAllData(CancellationToken cancellationToken = default)

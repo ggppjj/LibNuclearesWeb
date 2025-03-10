@@ -2,7 +2,7 @@
 
 namespace LibNuclearesWeb;
 
-public partial class Nucleares
+public partial class NuclearesWeb
 {
     public partial class Plants
     {
@@ -11,7 +11,7 @@ public partial class Nucleares
             public partial class Cores
             {
                 [JsonIgnore]
-                private readonly Nucleares _nucleares;
+                private readonly NuclearesWeb _nucleares;
 
                 private ControlRods _controlRodBundles = new();
 
@@ -33,7 +33,7 @@ public partial class Nucleares
 
                 public Cores() { }
 
-                internal Cores(Nucleares nucleares)
+                internal Cores(NuclearesWeb nucleares)
                 {
                     _nucleares = nucleares;
                     ControlRodBundles = new(nucleares);
