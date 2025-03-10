@@ -23,14 +23,7 @@ public partial class NuclearesWeb
             public string ActivePowerKW
             {
                 get => _activePowerKW;
-                private set
-                {
-                    if (_activePowerKW != value)
-                    {
-                        _activePowerKW = value;
-                        OnPropertyChanged();
-                    }
-                }
+                private set => SetProperty(ref _activePowerKW, value);
             }
 
             private string _activePowerV = string.Empty;
@@ -39,14 +32,7 @@ public partial class NuclearesWeb
             public string ActivePowerV
             {
                 get => _activePowerV;
-                private set
-                {
-                    if (_activePowerV != value)
-                    {
-                        _activePowerV = value;
-                        OnPropertyChanged();
-                    }
-                }
+                private set => SetProperty(ref _activePowerV, value);
             }
 
             private string _activePowerA = string.Empty;
@@ -55,14 +41,7 @@ public partial class NuclearesWeb
             public string ActivePowerA
             {
                 get => _activePowerA;
-                private set
-                {
-                    if (_activePowerA != value)
-                    {
-                        _activePowerA = value;
-                        OnPropertyChanged();
-                    }
-                }
+                private set => SetProperty(ref _activePowerA, value);
             }
 
             private string _activePowerHz = string.Empty;
@@ -71,14 +50,7 @@ public partial class NuclearesWeb
             public string ActivePowerHz
             {
                 get => _activePowerHz;
-                private set
-                {
-                    if (_activePowerHz != value)
-                    {
-                        _activePowerHz = value;
-                        OnPropertyChanged();
-                    }
-                }
+                private set => SetProperty(ref _activePowerHz, value);
             }
 
             private string _breakerStatus = string.Empty;
@@ -87,14 +59,20 @@ public partial class NuclearesWeb
             public string BreakerStatus
             {
                 get => _breakerStatus;
-                private set
-                {
-                    if (_breakerStatus != value)
-                    {
-                        _breakerStatus = value;
-                        OnPropertyChanged();
-                    }
-                }
+                private set => SetProperty(ref _breakerStatus, value);
+            }
+
+            protected bool SetProperty<T>(
+                ref T field,
+                T value,
+                [CallerMemberName] string? propertyName = null
+            )
+            {
+                if (EqualityComparer<T>.Default.Equals(field, value))
+                    return false;
+                field = value;
+                OnPropertyChanged(propertyName);
+                return true;
             }
 
             public event PropertyChangedEventHandler? PropertyChanged;
