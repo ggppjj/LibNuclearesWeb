@@ -1,11 +1,14 @@
-﻿namespace LibNuclearesWeb;
+﻿using LibNuclearesWeb.NuclearesWeb.Plant;
+using LibNuclearesWeb.NuclearesWeb.World;
+
+namespace LibNuclearesWeb.NuclearesWeb;
 
 public partial class NuclearesWeb
 {
     private static readonly HttpClient httpClient = new();
     private readonly SemaphoreSlim semaphore = new(10, 10);
-    public Plant MainPlant { get; }
-    public World MainWorld { get; }
+    public PlantModel MainPlant { get; }
+    public WorldModel MainWorld { get; }
     public bool AutoRefresh { get; set; } = true;
 
     private string _networkLocation = "127.0.0.1";
