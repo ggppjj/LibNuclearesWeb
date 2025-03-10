@@ -4,25 +4,45 @@ namespace LibNuclearesWeb;
 
 public partial class NuclearesWeb
 {
-    public partial class Plants(NuclearesWeb nuclearesWeb)
+    public partial class Plants
     {
         [JsonIgnore]
-        private readonly NuclearesWeb _nuclearesWeb = nuclearesWeb;
+        private NuclearesWeb? _nuclearesWeb;
+
+        [JsonInclude]
         public Reactors MainReactor { get; } = new();
+
+        [JsonInclude]
         public List<SteamGenerators> SteamGeneratorList { get; } = [];
 
-        public void RefreshAllData(CancellationToken cancellationToken = default)
+        public Plants() { }
+
+        public void Init(NuclearesWeb nuclearesWeb)
         {
-            MainReactor.RefreshAllData(cancellationToken);
-            foreach (var steamGenerator in SteamGeneratorList)
-                steamGenerator.RefreshAllData(cancellationToken);
+            _nuclearesWeb = nuclearesWeb;
+            MainReactor.Init(nuclearesWeb);
+            foreach (var generator in SteamGeneratorList)
+                generator.Init(nuclearesWeb);
         }
 
-        public async Task RefreshAllDataAsync(CancellationToken cancellationToken = default)
+        internal Plants(NuclearesWeb nuclearesWeb)
+        {
+            _nuclearesWeb = nuclearesWeb;
+            MainReactor = new(nuclearesWeb);
+            SteamGeneratorList.Add(new(nuclearesWeb, 0));
+            SteamGeneratorList.Add(new(nuclearesWeb, 1));
+            SteamGeneratorList.Add(new(nuclearesWeb, 2));
+        }
+
+        public Plants RefreshAllData(CancellationToken cancellationToken = default) =>
+            Task.Run(() => RefreshAllDataAsync(cancellationToken)).GetAwaiter().GetResult();
+
+        public async Task<Plants> RefreshAllDataAsync(CancellationToken cancellationToken = default)
         {
             await MainReactor.RefreshAllDataAsync(cancellationToken);
             foreach (var generator in SteamGeneratorList)
                 await generator.RefreshAllDataAsync(cancellationToken);
+            return this;
         }
     }
 }

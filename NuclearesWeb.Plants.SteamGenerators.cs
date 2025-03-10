@@ -104,6 +104,16 @@ public partial class NuclearesWeb
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
 
+            public static async Task<SteamGenerators> CreateAsync(
+                NuclearesWeb nucleares,
+                int generatorId,
+                CancellationToken cancellationToken = default
+            )
+            {
+                var instance = new SteamGenerators(nucleares, generatorId);
+                return await instance.RefreshAllDataAsync(cancellationToken);
+            }
+
             public SteamGenerators() { }
 
             internal SteamGenerators(NuclearesWeb nucleares, int generatorId)
@@ -114,11 +124,6 @@ public partial class NuclearesWeb
                     RefreshAllData();
             }
 
-            [MemberNotNull(nameof(ActivePowerKW))]
-            [MemberNotNull(nameof(ActivePowerV))]
-            [MemberNotNull(nameof(ActivePowerA))]
-            [MemberNotNull(nameof(ActivePowerHz))]
-            [MemberNotNull(nameof(BreakerStatus))]
             private void SetAllData(string kw, string v, string a, string hz, string breaker)
             {
                 ActivePowerKW = kw;
@@ -172,12 +177,8 @@ public partial class NuclearesWeb
                 return this;
             }
 
-            public SteamGenerators RefreshAllData(CancellationToken cancellationToken = default)
-            {
-                return Task.Run(() => RefreshAllDataAsync(cancellationToken))
-                    .GetAwaiter()
-                    .GetResult();
-            }
+            public SteamGenerators RefreshAllData(CancellationToken cancellationToken = default) =>
+                Task.Run(() => RefreshAllDataAsync(cancellationToken)).GetAwaiter().GetResult();
         }
     }
 }

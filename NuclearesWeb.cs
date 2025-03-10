@@ -4,26 +4,27 @@ public partial class NuclearesWeb
 {
     private static readonly HttpClient httpClient = new();
     private readonly SemaphoreSlim semaphore = new(10, 10);
-    private string networkLocation = "127.0.0.1";
-    private int port = 8785;
 
     public bool AutoRefresh { get; set; } = true;
+
+    private string _networkLocation = "127.0.0.1";
     public string NetworkLocation
     {
-        get => networkLocation;
+        get => _networkLocation;
         set
         {
-            networkLocation = value;
+            _networkLocation = value;
             if (AutoRefresh)
                 RefreshAllData();
         }
     }
+    private int _port = 8785;
     public int Port
     {
-        get => port;
+        get => _port;
         set
         {
-            port = value;
+            _port = value;
             if (AutoRefresh)
                 RefreshAllData();
         }
