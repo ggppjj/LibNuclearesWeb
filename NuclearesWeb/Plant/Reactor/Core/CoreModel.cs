@@ -14,7 +14,7 @@ public partial class Core : INotifyPropertyChanged
     public ControlRodBundleModel ControlRodBundles { get; private set; } = new();
 
     [JsonInclude]
-    public CoolantModel CoolantStatus { get; private set; } = new();
+    public CoolantModel Coolant { get; private set; } = new();
 
     public string _temperature = string.Empty;
 
