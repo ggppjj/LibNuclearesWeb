@@ -331,25 +331,26 @@ public partial class NuclearesWeb
                         cancellationToken
                     );
                     await Task.WhenAll(
-                        tempTask,
-                        opTempTask,
-                        maxTempTask,
-                        minTempTask,
-                        isResidualTask,
-                        pressureTask,
-                        maxPressureTask,
-                        opPressureTask,
-                        integrityTask,
-                        wearTask,
-                        stateTask,
-                        stateCriticalityTask,
-                        criticalMassReachedTask,
-                        criticalMassReachedCounterTask,
-                        imminentFusionTask,
-                        readyForStartTask,
-                        steamPresentTask,
-                        highSteamPresentTask
-                    );
+                            tempTask,
+                            opTempTask,
+                            maxTempTask,
+                            minTempTask,
+                            isResidualTask,
+                            pressureTask,
+                            maxPressureTask,
+                            opPressureTask,
+                            integrityTask,
+                            wearTask,
+                            stateTask,
+                            stateCriticalityTask,
+                            criticalMassReachedTask,
+                            criticalMassReachedCounterTask,
+                            imminentFusionTask,
+                            readyForStartTask,
+                            steamPresentTask,
+                            highSteamPresentTask
+                        )
+                        .ConfigureAwait(false);
                     SetAllData(
                         tempTask.Result,
                         opTempTask.Result,
