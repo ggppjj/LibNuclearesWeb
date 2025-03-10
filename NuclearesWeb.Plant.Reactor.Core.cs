@@ -8,17 +8,17 @@ namespace LibNuclearesWeb;
 
 public partial class NuclearesWeb
 {
-    public partial class Plants
+    public partial class Plant
     {
-        public partial class Reactors
+        public partial class Reactor
         {
-            public partial class Cores : INotifyPropertyChanged
+            public partial class Core : INotifyPropertyChanged
             {
                 [JsonIgnore]
-                private readonly NuclearesWeb? _nucleares;
+                private NuclearesWeb? _nuclearesWeb;
 
                 [JsonInclude]
-                public ControlRods ControlRodBundles { get; private set; } = new();
+                public ControlRodBundle ControlRodBundles { get; private set; } = new();
 
                 [JsonInclude]
                 public Coolant CoolantStatus { get; private set; } = new();
@@ -204,11 +204,11 @@ public partial class NuclearesWeb
                     [CallerMemberName] string? propertyName = null
                 ) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-                public Cores() { }
+                public Core() { }
 
-                internal Cores(NuclearesWeb nucleares)
+                internal Core(NuclearesWeb nucleares)
                 {
-                    _nucleares = nucleares;
+                    _nuclearesWeb = nucleares;
                     ControlRodBundles = new(nucleares);
                     CoolantStatus = new(nucleares);
                 }
@@ -252,75 +252,81 @@ public partial class NuclearesWeb
                     HighSteamPresent = highSteamPresent;
                 }
 
-                public async Task<Cores> RefreshAllDataAsync(
+                public async Task<Core> RefreshAllDataAsync(
                     CancellationToken cancellationToken = default
                 )
                 {
-                    if (_nucleares == null)
+                    if (_nuclearesWeb == null)
                         throw new InvalidOperationException("NuclearesWeb object is null");
-                    var tempTask = _nucleares.LoadDataFromGameAsync("CORE_TEMP", cancellationToken);
-                    var opTempTask = _nucleares.LoadDataFromGameAsync(
+                    var tempTask = _nuclearesWeb.LoadDataFromGameAsync(
+                        "CORE_TEMP",
+                        cancellationToken
+                    );
+                    var opTempTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_TEMP_OPERATIVE",
                         cancellationToken
                     );
-                    var maxTempTask = _nucleares.LoadDataFromGameAsync(
+                    var maxTempTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_TEMP_MAX",
                         cancellationToken
                     );
-                    var minTempTask = _nucleares.LoadDataFromGameAsync(
+                    var minTempTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_TEMP_MIN",
                         cancellationToken
                     );
-                    var isResidualTask = _nucleares.LoadDataFromGameAsync(
+                    var isResidualTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_TEMP_RESIDUAL",
                         cancellationToken
                     );
-                    var pressureTask = _nucleares.LoadDataFromGameAsync(
+                    var pressureTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_PRESSURE",
                         cancellationToken
                     );
-                    var maxPressureTask = _nucleares.LoadDataFromGameAsync(
+                    var maxPressureTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_PRESSURE_MAX",
                         cancellationToken
                     );
-                    var opPressureTask = _nucleares.LoadDataFromGameAsync(
+                    var opPressureTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_PRESSURE_OPERATIVE",
                         cancellationToken
                     );
-                    var integrityTask = _nucleares.LoadDataFromGameAsync(
+                    var integrityTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_INTEGRITY",
                         cancellationToken
                     );
-                    var wearTask = _nucleares.LoadDataFromGameAsync("CORE_WEAR", cancellationToken);
-                    var stateTask = _nucleares.LoadDataFromGameAsync(
+                    var wearTask = _nuclearesWeb.LoadDataFromGameAsync(
+                        "CORE_WEAR",
+                        cancellationToken
+                    );
+                    var stateTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_STATE",
                         cancellationToken
                     );
-                    var stateCriticalityTask = _nucleares.LoadDataFromGameAsync(
+                    var stateCriticalityTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_STATE_CRITICALITY",
                         cancellationToken
                     );
-                    var criticalMassReachedTask = _nucleares.LoadDataFromGameAsync(
+                    var criticalMassReachedTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_CRITICAL_MASS_REACHED",
                         cancellationToken
                     );
-                    var criticalMassReachedCounterTask = _nucleares.LoadDataFromGameAsync(
+                    var criticalMassReachedCounterTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_CRITICAL_MASS_REACHED_COUNTER",
                         cancellationToken
                     );
-                    var imminentFusionTask = _nucleares.LoadDataFromGameAsync(
+                    var imminentFusionTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_IMMINENT_FUSION",
                         cancellationToken
                     );
-                    var readyForStartTask = _nucleares.LoadDataFromGameAsync(
+                    var readyForStartTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_READY_FOR_START",
                         cancellationToken
                     );
-                    var steamPresentTask = _nucleares.LoadDataFromGameAsync(
+                    var steamPresentTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_STEAM_PRESENT",
                         cancellationToken
                     );
-                    var highSteamPresentTask = _nucleares.LoadDataFromGameAsync(
+                    var highSteamPresentTask = _nuclearesWeb.LoadDataFromGameAsync(
                         "CORE_HIGH_STEAM_PRESENT",
                         cancellationToken
                     );
@@ -366,7 +372,14 @@ public partial class NuclearesWeb
                     return this;
                 }
 
-                public Cores RefreshAllData(CancellationToken cancellationToken = default) =>
+                public void Init(NuclearesWeb nuclearesWeb)
+                {
+                    _nuclearesWeb = nuclearesWeb;
+                    ControlRodBundles.Init(nuclearesWeb);
+                    CoolantStatus.Init(nuclearesWeb);
+                }
+
+                public Core RefreshAllData(CancellationToken cancellationToken = default) =>
                     Task.Run(() => RefreshAllDataAsync(cancellationToken)).GetAwaiter().GetResult();
             }
         }

@@ -7,9 +7,9 @@ namespace LibNuclearesWeb;
 
 public partial class NuclearesWeb
 {
-    public partial class Plants
+    public partial class Plant
     {
-        public class SteamGenerators : INotifyPropertyChanged
+        public class SteamGenerator : INotifyPropertyChanged
         {
             [JsonIgnore]
             private NuclearesWeb? _nucleares;
@@ -104,19 +104,24 @@ public partial class NuclearesWeb
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
 
-            public static async Task<SteamGenerators> CreateAsync(
+            public static async Task<SteamGenerator> CreateAsync(
                 NuclearesWeb nucleares,
                 int generatorId,
                 CancellationToken cancellationToken = default
             )
             {
-                var instance = new SteamGenerators(nucleares, generatorId);
+                var instance = new SteamGenerator(nucleares, generatorId);
                 return await instance.RefreshAllDataAsync(cancellationToken);
             }
 
-            public SteamGenerators() { }
+            public SteamGenerator() { }
 
-            internal SteamGenerators(NuclearesWeb nucleares, int generatorId)
+            internal SteamGenerator(int generatorId)
+            {
+                GeneratorId = generatorId;
+            }
+
+            internal SteamGenerator(NuclearesWeb nucleares, int generatorId)
             {
                 _nucleares = nucleares;
                 GeneratorId = generatorId;
@@ -140,7 +145,7 @@ public partial class NuclearesWeb
                     RefreshAllData();
             }
 
-            public async Task<SteamGenerators> RefreshAllDataAsync(
+            public async Task<SteamGenerator> RefreshAllDataAsync(
                 CancellationToken cancellationToken = default
             )
             {
@@ -177,7 +182,7 @@ public partial class NuclearesWeb
                 return this;
             }
 
-            public SteamGenerators RefreshAllData(CancellationToken cancellationToken = default) =>
+            public SteamGenerator RefreshAllData(CancellationToken cancellationToken = default) =>
                 Task.Run(() => RefreshAllDataAsync(cancellationToken)).GetAwaiter().GetResult();
         }
     }

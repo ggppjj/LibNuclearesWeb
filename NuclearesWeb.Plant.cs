@@ -4,18 +4,23 @@ namespace LibNuclearesWeb;
 
 public partial class NuclearesWeb
 {
-    public partial class Plants
+    public partial class Plant
     {
         [JsonIgnore]
         private NuclearesWeb? _nuclearesWeb;
 
         [JsonInclude]
-        public Reactors MainReactor { get; } = new();
+        public Reactor MainReactor { get; } = new();
 
         [JsonInclude]
-        public List<SteamGenerators> SteamGeneratorList { get; } = [];
+        public List<SteamGenerator> SteamGeneratorList { get; } = [];
 
-        public Plants() { }
+        public Plant()
+        {
+            SteamGeneratorList.Add(new(0));
+            SteamGeneratorList.Add(new(1));
+            SteamGeneratorList.Add(new(2));
+        }
 
         public void Init(NuclearesWeb nuclearesWeb)
         {
@@ -25,7 +30,7 @@ public partial class NuclearesWeb
                 generator.Init(nuclearesWeb);
         }
 
-        internal Plants(NuclearesWeb nuclearesWeb)
+        internal Plant(NuclearesWeb nuclearesWeb)
         {
             _nuclearesWeb = nuclearesWeb;
             MainReactor = new(nuclearesWeb);
@@ -34,10 +39,10 @@ public partial class NuclearesWeb
             SteamGeneratorList.Add(new(nuclearesWeb, 2));
         }
 
-        public Plants RefreshAllData(CancellationToken cancellationToken = default) =>
+        public Plant RefreshAllData(CancellationToken cancellationToken = default) =>
             Task.Run(() => RefreshAllDataAsync(cancellationToken)).GetAwaiter().GetResult();
 
-        public async Task<Plants> RefreshAllDataAsync(CancellationToken cancellationToken = default)
+        public async Task<Plant> RefreshAllDataAsync(CancellationToken cancellationToken = default)
         {
             await MainReactor.RefreshAllDataAsync(cancellationToken);
             foreach (var generator in SteamGeneratorList)

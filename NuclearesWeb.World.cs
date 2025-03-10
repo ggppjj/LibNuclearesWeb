@@ -4,7 +4,7 @@ namespace LibNuclearesWeb;
 
 public partial class NuclearesWeb
 {
-    public class Worlds
+    public class World
     {
         [JsonIgnore]
         private readonly NuclearesWeb _nucleares;
@@ -12,7 +12,7 @@ public partial class NuclearesWeb
         public string Time { get; private set; }
         public string TimeStamp { get; private set; }
 
-        internal Worlds(NuclearesWeb nucleares)
+        internal World(NuclearesWeb nucleares)
         {
             _nucleares = nucleares;
             if (_nucleares.AutoRefresh)
@@ -27,16 +27,14 @@ public partial class NuclearesWeb
             }
         }
 
-        public void RefreshAllData()
-        {
-            Time = _nucleares.LoadDataFromGame("TIME");
-            TimeStamp = _nucleares.LoadDataFromGame("TIME_STAMP");
-        }
+        public World RefreshAllData(CancellationToken cancellationToken = default) =>
+            Task.Run(() => RefreshAllDataAsync(cancellationToken)).GetAwaiter().GetResult();
 
-        public async Task RefreshAllDataAsync(CancellationToken cancellationToken = default)
+        public async Task<World> RefreshAllDataAsync(CancellationToken cancellationToken = default)
         {
             Time = await _nucleares.LoadDataFromGameAsync("TIME", cancellationToken);
             TimeStamp = await _nucleares.LoadDataFromGameAsync("TIME_STAMP", cancellationToken);
+            return this;
         }
     }
 }

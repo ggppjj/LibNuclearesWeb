@@ -24,7 +24,7 @@ namespace LibNuclearesWebExample;
 
 var nuclearesWeb = new NuclearesWeb();
 
-Console.WriteLine(nuclearesWeb.Plant.MainReactor.Core.Pressure);
+Console.WriteLine(nuclearesWeb.MainPlant.MainReactor.MainCore.Pressure);
 
 ```
 
@@ -32,7 +32,7 @@ If you wish to use your own network location or port, or to not load data automa
 ```csharp
 var nuclearesWeb = new NuclearesWeb(networkLocation:"localhost", port:5000, refreshAutomatically:false);
 
-var generator0Voltage = await nuclearesWeb.Plant.SteamGeneratorList[0].RefreshAllDataAsync().ActivePowerV;
+var generator0Voltage = await nuclearesWeb.MainPlant.SteamGeneratorList[0].RefreshAllDataAsync().ActivePowerV;
 
 Console.WriteLine(generator0Voltage);
 ```
