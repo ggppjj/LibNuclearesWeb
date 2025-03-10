@@ -22,17 +22,17 @@ using LibNuclearesWeb;
 
 namespace LibNuclearesWebExample;
 
-var nucleares = new Nucleares();
+var nuclearesWeb = new NuclearesWeb();
 
-Console.WriteLine(nucleares.Plant.MainReactor.Core.Pressure);
+Console.WriteLine(nuclearesWeb.Plant.MainReactor.Core.Pressure);
 
 ```
 
 If you wish to use your own network location or port, or to not load data automatically:
 ```csharp
-var nucleares = new Nucleares(networkLocation:"localhost", port:5000, refreshAutomatically:false);
+var nuclearesWeb = new NuclearesWeb(networkLocation:"localhost", port:5000, refreshAutomatically:false);
 
-var generator0Voltage = await nucleares.Plant.SteamGeneratorList[0].RefreshAllDataAsync().ActivePowerV;
+var generator0Voltage = await nuclearesWeb.Plant.SteamGeneratorList[0].RefreshAllDataAsync().ActivePowerV;
 
 Console.WriteLine(generator0Voltage);
 ```

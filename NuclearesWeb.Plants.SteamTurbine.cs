@@ -1,6 +1,6 @@
 ﻿namespace LibNuclearesWeb;
 
-public partial class Nucleares
+public partial class NuclearesWeb
 {
     public partial class Plants
     {

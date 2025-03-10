@@ -2,17 +2,17 @@
 
 namespace LibNuclearesWeb;
 
-public partial class Nucleares
+public partial class NuclearesWeb
 {
     public class Worlds
     {
         [JsonIgnore]
-        private readonly Nucleares _nucleares;
+        private readonly NuclearesWeb _nucleares;
 
         public string Time { get; private set; }
         public string TimeStamp { get; private set; }
 
-        internal Worlds(Nucleares nucleares)
+        internal Worlds(NuclearesWeb nucleares)
         {
             _nucleares = nucleares;
             if (_nucleares.AutoRefresh)

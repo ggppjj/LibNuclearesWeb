@@ -1,6 +1,6 @@
 ﻿namespace LibNuclearesWeb;
 
-public partial class Nucleares
+public partial class NuclearesWeb
 {
     private static readonly HttpClient httpClient = new();
     private readonly SemaphoreSlim semaphore = new(10, 10);
@@ -32,7 +32,7 @@ public partial class Nucleares
     public Plants Plant { get; }
     public Worlds World { get; }
 
-    public Nucleares(string? networkLocation = null, int? port = null, bool? autorefresh = null)
+    public NuclearesWeb(string? networkLocation = null, int? port = null, bool? autorefresh = null)
     {
         Plant = new(this);
         World = new(this);
