@@ -46,5 +46,5 @@ Please consider joining the game's Discord server:
 [![Discord](https://img.shields.io/badge/Nucleares-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/nucleares) 
 
 
-Also consider joining the developer's Patreon:  
+Also consider joining the game developer's Patreon:  
 [![Patreon](https://img.shields.io/badge/Nucleares-F96854?style=for-the-badge&logo=patreon&logoColor=white)](https://www.patreon.com/Nucleares)

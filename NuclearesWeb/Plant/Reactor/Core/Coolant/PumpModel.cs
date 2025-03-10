@@ -2,14 +2,14 @@
 
 namespace LibNuclearesWeb.NuclearesWeb.Plant.Reactor.Core.Coolant;
 
-public class Pump
+public class PumpModel
 {
     [JsonIgnore]
     private readonly NuclearesWeb? _nuclearesWeb;
 
-    public Pump() { }
+    public PumpModel() { }
 
-    internal Pump(NuclearesWeb nuclearesWeb)
+    internal PumpModel(NuclearesWeb nuclearesWeb)
     {
         _nuclearesWeb = nuclearesWeb;
     }

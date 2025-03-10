@@ -6,7 +6,7 @@ public partial class ReactorModel
 {
     [JsonIgnore]
     private NuclearesWeb? _nuclearesWeb;
-    public Core MainCore { get; } = new();
+    public CoreModel MainCore { get; } = new();
 
     public ReactorModel() { }
 
@@ -21,7 +21,9 @@ public partial class ReactorModel
         MainCore.Init(nuclearesWeb);
     }
 
-    public async Task<ReactorModel> RefreshAllDataAsync(CancellationToken cancellationToken = default)
+    public async Task<ReactorModel> RefreshAllDataAsync(
+        CancellationToken cancellationToken = default
+    )
     {
         await MainCore.RefreshAllDataAsync(cancellationToken);
         return this;

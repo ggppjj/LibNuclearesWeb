@@ -8,7 +8,7 @@ public partial class CoolantModel
     private readonly NuclearesWeb? _nuclearesWeb;
 
     [JsonInclude]
-    public List<Pump> PumpList { get; private set; } = [];
+    public List<PumpModel> PumpList { get; private set; } = [];
 
     public CoolantModel()
     {
