@@ -43,7 +43,8 @@ public class WorldModel : MinObservableObject
         }
     }
 
-    public void Init(NuclearesWeb nuclearesWeb) => InitAsync(nuclearesWeb).GetAwaiter().GetResult();
+    public WorldModel Init(NuclearesWeb nuclearesWeb) =>
+        InitAsync(nuclearesWeb).GetAwaiter().GetResult();
 
     public Task<WorldModel> InitAsync(
         NuclearesWeb nuclearesWeb,
@@ -61,6 +62,8 @@ public class WorldModel : MinObservableObject
 
     public async Task<WorldModel> RefreshAllDataAsync(CancellationToken cancellationToken = default)
     {
+        if (_nuclearesWeb == null)
+            throw new InvalidOperationException("NuclearesWeb object not set");
         Time = await _nuclearesWeb.LoadDataFromGameAsync("TIME", cancellationToken);
         TimeStamp = await _nuclearesWeb.LoadDataFromGameAsync("TIME_STAMP", cancellationToken);
         return this;

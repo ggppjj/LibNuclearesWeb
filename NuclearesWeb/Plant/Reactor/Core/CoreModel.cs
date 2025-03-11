@@ -1,11 +1,10 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using LibNuclearesWeb.BaseClasses;
 using LibNuclearesWeb.NuclearesWeb.Plant.Reactor.Core.Coolant;
 
 namespace LibNuclearesWeb.NuclearesWeb.Plant.Reactor.Core;
 
-public partial class Core : INotifyPropertyChanged
+public partial class CoreModel : MinObservableObject
 {
     [JsonIgnore]
     private NuclearesWeb? _nuclearesWeb;
@@ -22,7 +21,7 @@ public partial class Core : INotifyPropertyChanged
     public string Temperature
     {
         get => _temperature;
-        private set => SetProperty(ref _temperature, value);
+        private set => SetPropertyAndNotify(ref _temperature, value);
     }
 
     private string _operativeTemperature = string.Empty;
@@ -31,7 +30,7 @@ public partial class Core : INotifyPropertyChanged
     public string OperativeTemperature
     {
         get => _operativeTemperature;
-        private set => SetProperty(ref _operativeTemperature, value);
+        private set => SetPropertyAndNotify(ref _operativeTemperature, value);
     }
 
     private string _maxTemperature = string.Empty;
@@ -40,7 +39,7 @@ public partial class Core : INotifyPropertyChanged
     public string MaxTemperature
     {
         get => _maxTemperature;
-        private set => SetProperty(ref _maxTemperature, value);
+        private set => SetPropertyAndNotify(ref _maxTemperature, value);
     }
 
     private string _minTemperature = string.Empty;
@@ -49,7 +48,7 @@ public partial class Core : INotifyPropertyChanged
     public string MinTemperature
     {
         get => _minTemperature;
-        private set => SetProperty(ref _minTemperature, value);
+        private set => SetPropertyAndNotify(ref _minTemperature, value);
     }
 
     private string _isResidual = string.Empty;
@@ -58,7 +57,7 @@ public partial class Core : INotifyPropertyChanged
     public string IsResidual
     {
         get => _isResidual;
-        private set => SetProperty(ref _isResidual, value);
+        private set => SetPropertyAndNotify(ref _isResidual, value);
     }
 
     private string _pressure = string.Empty;
@@ -67,7 +66,7 @@ public partial class Core : INotifyPropertyChanged
     public string Pressure
     {
         get => _pressure;
-        private set => SetProperty(ref _pressure, value);
+        private set => SetPropertyAndNotify(ref _pressure, value);
     }
 
     private string _operativePressure = string.Empty;
@@ -76,7 +75,7 @@ public partial class Core : INotifyPropertyChanged
     public string OperativePressure
     {
         get => _operativePressure;
-        private set => SetProperty(ref _operativePressure, value);
+        private set => SetPropertyAndNotify(ref _operativePressure, value);
     }
 
     private string _maxPressure = string.Empty;
@@ -85,7 +84,7 @@ public partial class Core : INotifyPropertyChanged
     public string MaxPressure
     {
         get => _maxPressure;
-        private set => SetProperty(ref _maxPressure, value);
+        private set => SetPropertyAndNotify(ref _maxPressure, value);
     }
 
     private string _integrity = string.Empty;
@@ -94,7 +93,7 @@ public partial class Core : INotifyPropertyChanged
     public string Integrety
     {
         get => _integrity;
-        private set => SetProperty(ref _integrity, value);
+        private set => SetPropertyAndNotify(ref _integrity, value);
     }
 
     private string _wear = string.Empty;
@@ -103,7 +102,7 @@ public partial class Core : INotifyPropertyChanged
     public string Wear
     {
         get => _wear;
-        private set => SetProperty(ref _wear, value);
+        private set => SetPropertyAndNotify(ref _wear, value);
     }
 
     private string _state = string.Empty;
@@ -112,7 +111,7 @@ public partial class Core : INotifyPropertyChanged
     public string State
     {
         get => _state;
-        private set => SetProperty(ref _state, value);
+        private set => SetPropertyAndNotify(ref _state, value);
     }
 
     private string _stateCriticality = string.Empty;
@@ -121,7 +120,7 @@ public partial class Core : INotifyPropertyChanged
     public string StateCriticality
     {
         get => _stateCriticality;
-        private set => SetProperty(ref _stateCriticality, value);
+        private set => SetPropertyAndNotify(ref _stateCriticality, value);
     }
 
     private string _criticalMassReached = string.Empty;
@@ -130,7 +129,7 @@ public partial class Core : INotifyPropertyChanged
     public string CriticalMassReached
     {
         get => _criticalMassReached;
-        private set => SetProperty(ref _criticalMassReached, value);
+        private set => SetPropertyAndNotify(ref _criticalMassReached, value);
     }
 
     private string _criticalMassReachedCounter = string.Empty;
@@ -139,7 +138,7 @@ public partial class Core : INotifyPropertyChanged
     public string CriticalMassReachedCounter
     {
         get => _criticalMassReachedCounter;
-        private set => SetProperty(ref _criticalMassReachedCounter, value);
+        private set => SetPropertyAndNotify(ref _criticalMassReachedCounter, value);
     }
 
     private string _imminentFusion = string.Empty;
@@ -148,7 +147,7 @@ public partial class Core : INotifyPropertyChanged
     public string ImminentFusion
     {
         get => _imminentFusion;
-        private set => SetProperty(ref _imminentFusion, value);
+        private set => SetPropertyAndNotify(ref _imminentFusion, value);
     }
 
     private string _readyForStart = string.Empty;
@@ -157,7 +156,7 @@ public partial class Core : INotifyPropertyChanged
     public string ReadyForStart
     {
         get => _readyForStart;
-        private set => SetProperty(ref _readyForStart, value);
+        private set => SetPropertyAndNotify(ref _readyForStart, value);
     }
 
     private string _steamPresent = string.Empty;
@@ -166,7 +165,7 @@ public partial class Core : INotifyPropertyChanged
     public string SteamPresent
     {
         get => _steamPresent;
-        private set => SetProperty(ref _steamPresent, value);
+        private set => SetPropertyAndNotify(ref _steamPresent, value);
     }
 
     private string _highSteamPresent = string.Empty;
@@ -175,34 +174,16 @@ public partial class Core : INotifyPropertyChanged
     public string HighSteamPresent
     {
         get => _highSteamPresent;
-        private set => SetProperty(ref _highSteamPresent, value);
+        private set => SetPropertyAndNotify(ref _highSteamPresent, value);
     }
 
-    protected bool SetProperty<T>(
-        ref T field,
-        T value,
-        [CallerMemberName] string? propertyName = null
-    )
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value))
-            return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
-    }
+    public CoreModel() { }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-    public Core() { }
-
-    internal Core(NuclearesWeb nucleares)
+    internal CoreModel(NuclearesWeb nucleares)
     {
         _nuclearesWeb = nucleares;
         ControlRodBundles = new(nucleares);
-        CoolantStatus = new(nucleares);
+        Coolant = new(nucleares);
     }
 
     private void SetAllData(
@@ -244,10 +225,12 @@ public partial class Core : INotifyPropertyChanged
         HighSteamPresent = highSteamPresent;
     }
 
-    public async Task<Core> RefreshAllDataAsync(CancellationToken cancellationToken = default)
+    public async Task<CoreModel> RefreshAllDataAsync(CancellationToken cancellationToken = default)
     {
         if (_nuclearesWeb == null)
             throw new InvalidOperationException("NuclearesWeb object is null");
+        var controlRodBundleTask = ControlRodBundles.RefreshAllDataAsync(cancellationToken);
+        var coolantTask = Coolant.RefreshAllDataAsync(cancellationToken);
         var tempTask = _nuclearesWeb.LoadDataFromGameAsync("CORE_TEMP", cancellationToken);
         var opTempTask = _nuclearesWeb.LoadDataFromGameAsync(
             "CORE_TEMP_OPERATIVE",
@@ -342,16 +325,24 @@ public partial class Core : INotifyPropertyChanged
             steamPresentTask.Result,
             highSteamPresentTask.Result
         );
+        await Task.WhenAll(controlRodBundleTask, coolantTask);
         return this;
     }
 
-    public void Init(NuclearesWeb nuclearesWeb)
+    public CoreModel Init(NuclearesWeb nuclearesWeb) =>
+        InitAsync(nuclearesWeb).GetAwaiter().GetResult();
+
+    public async Task<CoreModel> InitAsync(
+        NuclearesWeb nuclearesWeb,
+        CancellationToken cancellationToken = default
+    )
     {
         _nuclearesWeb = nuclearesWeb;
-        ControlRodBundles.Init(nuclearesWeb);
-        CoolantStatus.Init(nuclearesWeb);
+        await ControlRodBundles.InitAsync(nuclearesWeb, cancellationToken);
+        await Coolant.InitAsync(nuclearesWeb, cancellationToken);
+        return this;
     }
 
-    public Core RefreshAllData(CancellationToken cancellationToken = default) =>
+    public CoreModel RefreshAllData(CancellationToken cancellationToken = default) =>
         Task.Run(() => RefreshAllDataAsync(cancellationToken)).GetAwaiter().GetResult();
 }

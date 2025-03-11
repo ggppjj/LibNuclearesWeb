@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using LibNuclearesWeb.NuclearesWeb.Plant.Reactor.Core;
 
 namespace LibNuclearesWeb.NuclearesWeb.Plant.Reactor;
 
@@ -15,10 +16,17 @@ public partial class ReactorModel
         _nuclearesWeb = nucleares;
     }
 
-    public void Init(NuclearesWeb nuclearesWeb)
+    public ReactorModel Init(NuclearesWeb nuclearesWeb) =>
+        InitAsync(nuclearesWeb).GetAwaiter().GetResult();
+
+    public async Task<ReactorModel> InitAsync(
+        NuclearesWeb nucleares,
+        CancellationToken cancellationToken = default
+    )
     {
-        _nuclearesWeb = nuclearesWeb;
-        MainCore.Init(nuclearesWeb);
+        _nuclearesWeb = nucleares;
+        await MainCore.InitAsync(nucleares, cancellationToken);
+        return this;
     }
 
     public async Task<ReactorModel> RefreshAllDataAsync(

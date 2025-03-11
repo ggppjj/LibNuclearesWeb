@@ -1,14 +1,96 @@
 ﻿using System.Text.Json.Serialization;
+using LibNuclearesWeb.BaseClasses;
 
 namespace LibNuclearesWeb.NuclearesWeb.Plant.Reactor.Core.Coolant;
 
-public partial class CoolantModel
+public partial class CoolantModel : MinObservableObject
 {
     [JsonIgnore]
-    private readonly NuclearesWeb? _nuclearesWeb;
+    private NuclearesWeb? _nuclearesWeb;
 
     [JsonInclude]
     public List<PumpModel> PumpList { get; private set; } = [];
+
+    private string _coreState = string.Empty;
+
+    [JsonInclude]
+    public string CoreState
+    {
+        get => _coreState;
+        set => SetPropertyAndNotify(ref _coreState, value);
+    }
+
+    private string _corePressure = string.Empty;
+
+    [JsonInclude]
+    public string CorePressure
+    {
+        get => _corePressure;
+        set => SetPropertyAndNotify(ref _corePressure, value);
+    }
+
+    private string _coreMaxPressure = string.Empty;
+
+    [JsonInclude]
+    public string CoreMaxPressure
+    {
+        get => _coreMaxPressure;
+        set => SetPropertyAndNotify(ref _coreMaxPressure, value);
+    }
+
+    private string _coreVesselTemperature = string.Empty;
+
+    [JsonInclude]
+    public string CoreVesselTemperature
+    {
+        get => _coreVesselTemperature;
+        set => SetPropertyAndNotify(ref _coreVesselTemperature, value);
+    }
+
+    private string _coreQuantityInVessel = string.Empty;
+
+    [JsonInclude]
+    public string CoreQuantityInVessel
+    {
+        get => _coreQuantityInVessel;
+        set => SetPropertyAndNotify(ref _coreQuantityInVessel, value);
+    }
+
+    private string _corePrimaryLoopLevel = string.Empty;
+
+    [JsonInclude]
+    public string CorePrimaryLoopLevel
+    {
+        get => _corePrimaryLoopLevel;
+        set => SetPropertyAndNotify(ref _corePrimaryLoopLevel, value);
+    }
+
+    private string _coreFlowSpeed = string.Empty;
+
+    [JsonInclude]
+    public string CoreFlowSpeed
+    {
+        get => _coreFlowSpeed;
+        set => SetPropertyAndNotify(ref _coreFlowSpeed, value);
+    }
+
+    private string _coreFlowPercentOrdered = string.Empty;
+
+    [JsonInclude]
+    public string CoreFlowPercentOrdered
+    {
+        get => _coreFlowPercentOrdered;
+        set => SetPropertyAndNotify(ref _coreFlowPercentOrdered, value);
+    }
+
+    private string _coreFlowPercentReached = string.Empty;
+
+    [JsonInclude]
+    public string CoreFlowPercentReached
+    {
+        get => _coreFlowPercentReached;
+        set => SetPropertyAndNotify(ref _coreFlowPercentReached, value);
+    }
 
     public CoolantModel()
     {
@@ -23,5 +105,29 @@ public partial class CoolantModel
         PumpList.Add(new(_nuclearesWeb));
         PumpList.Add(new(_nuclearesWeb));
         PumpList.Add(new(_nuclearesWeb));
+    }
+
+    public CoolantModel Init(NuclearesWeb nuclearesWeb) =>
+        InitAsync(nuclearesWeb).GetAwaiter().GetResult();
+
+    public async Task<CoolantModel> InitAsync(
+        NuclearesWeb nuclearesWeb,
+        CancellationToken cancellationToken
+    )
+    {
+        _nuclearesWeb = nuclearesWeb;
+        foreach (var pump in PumpList)
+            await pump.InitAsync(nuclearesWeb, cancellationToken);
+        return this;
+    }
+
+    public CoolantModel RefreshAllData() =>
+        RefreshAllDataAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+
+    public async Task<CoolantModel> RefreshAllDataAsync(CancellationToken cancellationToken)
+    {
+        foreach (var pump in PumpList)
+            await pump.RefreshAllDataAsync(cancellationToken);
+        return this;
     }
 }

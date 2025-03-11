@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using LibNuclearesWeb.BaseClasses;
 
 namespace LibNuclearesWeb.NuclearesWeb.Plant;
@@ -61,10 +60,12 @@ public partial class SteamTurbineModel : MinObservableObject
     )
     {
         if (_nuclearesWeb == null)
+        {
             throw new InvalidOperationException(
                 "NuclearesWeb object is null. Run Init with a valid NuclearesWeb instance first!"
             );
-        List<Task<string>> tasks = [];
+        }
+
         var rpmTask = _nuclearesWeb.LoadDataFromGameAsync(
             $"STEAM_TURBINE_{TurbineId}_RPM",
             cancellationToken

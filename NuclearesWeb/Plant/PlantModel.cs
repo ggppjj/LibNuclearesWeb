@@ -39,6 +39,8 @@ public class PlantModel
     )
     {
         _nuclearesWeb = nuclearesWeb;
+        foreach (var steamGenerator in SteamGeneratorList)
+            steamGenerator.Init(nuclearesWeb);
         if (_nuclearesWeb.AutoRefresh)
             return RefreshAllDataAsync(cancellationToken);
         return Task.FromResult(this);
