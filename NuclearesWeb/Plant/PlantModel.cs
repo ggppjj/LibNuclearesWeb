@@ -30,22 +30,30 @@ public class PlantModel
     [JsonInclude]
     public List<SteamGeneratorModel> SteamGeneratorList { get; } = [];
 
-    public void Init(NuclearesWeb nuclearesWeb)
+    public PlantModel Init(NuclearesWeb nuclearesWeb) =>
+        InitAsync(nuclearesWeb).GetAwaiter().GetResult();
+
+    public Task<PlantModel> InitAsync(
+        NuclearesWeb nuclearesWeb,
+        CancellationToken cancellationToken = default
+    )
     {
         _nuclearesWeb = nuclearesWeb;
-        MainReactor.Init(nuclearesWeb);
-        foreach (var generator in SteamGeneratorList)
-            generator.Init(nuclearesWeb);
+        if (_nuclearesWeb.AutoRefresh)
+            return RefreshAllDataAsync(cancellationToken);
+        return Task.FromResult(this);
     }
 
     public PlantModel RefreshAllData(CancellationToken cancellationToken = default) =>
-        Task.Run(() => RefreshAllDataAsync(cancellationToken)).GetAwaiter().GetResult();
+        RefreshAllDataAsync(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
 
     public async Task<PlantModel> RefreshAllDataAsync(CancellationToken cancellationToken = default)
     {
-        await MainReactor.RefreshAllDataAsync(cancellationToken);
+        List<Task> tasks = [];
+        tasks.Add(MainReactor.RefreshAllDataAsync(cancellationToken));
         foreach (var generator in SteamGeneratorList)
-            await generator.RefreshAllDataAsync(cancellationToken);
+            tasks.Add(generator.RefreshAllDataAsync(cancellationToken));
+        await Task.WhenAll(tasks).ConfigureAwait(false);
         return this;
     }
 }

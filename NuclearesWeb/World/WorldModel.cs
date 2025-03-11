@@ -1,14 +1,32 @@
 ﻿using System.Text.Json.Serialization;
+using LibNuclearesWeb.BaseClasses;
 
 namespace LibNuclearesWeb.NuclearesWeb.World;
 
-public class WorldModel
+public class WorldModel : MinObservableObject
 {
     [JsonIgnore]
-    private readonly NuclearesWeb _nuclearesWeb;
+    private NuclearesWeb? _nuclearesWeb;
 
-    public string Time { get; private set; }
-    public string TimeStamp { get; private set; }
+    private string _time = string.Empty;
+
+    [JsonInclude]
+    public string Time
+    {
+        get => _time;
+        private set => SetPropertyAndNotify(ref _time, value);
+    }
+
+    private string _timeStamp = string.Empty;
+
+    [JsonInclude]
+    public string TimeStamp
+    {
+        get => _timeStamp;
+        private set => SetPropertyAndNotify(ref _timeStamp, value);
+    }
+
+    public WorldModel() { }
 
     internal WorldModel(NuclearesWeb nuclearesWeb)
     {
@@ -23,6 +41,19 @@ public class WorldModel
             Time = "";
             TimeStamp = "";
         }
+    }
+
+    public void Init(NuclearesWeb nuclearesWeb) => InitAsync(nuclearesWeb).GetAwaiter().GetResult();
+
+    public Task<WorldModel> InitAsync(
+        NuclearesWeb nuclearesWeb,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _nuclearesWeb = nuclearesWeb;
+        if (_nuclearesWeb.AutoRefresh)
+            return RefreshAllDataAsync(cancellationToken);
+        return Task.FromResult(this);
     }
 
     public WorldModel RefreshAllData(CancellationToken cancellationToken = default) =>

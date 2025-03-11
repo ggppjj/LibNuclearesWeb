@@ -15,6 +15,7 @@ It aims to:
 * Be generally serialiazable.
 
 Current usage example, for an app targeting localhost with auto-refresh enabled:
+
 ```csharp
 using System;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ Console.WriteLine(nuclearesWeb.MainPlant.MainReactor.MainCore.Pressure);
 ```
 
 If you wish to use your own network location or port, or to not load data automatically:
+
 ```csharp
 var nuclearesWeb = new NuclearesWeb(networkLocation:"localhost", port:5000, refreshAutomatically:false);
 

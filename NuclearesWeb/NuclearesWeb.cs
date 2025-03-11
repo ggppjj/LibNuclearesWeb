@@ -1,39 +1,29 @@
-﻿using LibNuclearesWeb.NuclearesWeb.Plant;
+﻿using System.Threading.Tasks;
+using LibNuclearesWeb.BaseClasses;
+using LibNuclearesWeb.NuclearesWeb.Plant;
 using LibNuclearesWeb.NuclearesWeb.World;
 
 namespace LibNuclearesWeb.NuclearesWeb;
 
-public partial class NuclearesWeb
+public partial class NuclearesWeb : MinObservableObject
 {
     private static readonly HttpClient httpClient = new();
     private readonly SemaphoreSlim semaphore = new(10, 10);
+    private CancellationTokenSource cts = new();
+    private Task? refreshTask;
+
     public PlantModel MainPlant { get; }
     public WorldModel MainWorld { get; }
-    public bool AutoRefresh { get; set; } = true;
-
     private string _networkLocation = "127.0.0.1";
     public string NetworkLocation
     {
         get => _networkLocation;
-        set
-        {
-            _networkLocation = value;
-            if (AutoRefresh)
-                RefreshAllData();
-        }
+        set => SetPropertyAndNotify(ref _networkLocation, value);
     }
 
-    private int _port = 8785;
-    public int Port
-    {
-        get => _port;
-        set
-        {
-            _port = value;
-            if (AutoRefresh)
-                RefreshAllData();
-        }
-    }
+    public int Port { get; set; } = 8785;
+
+    public bool AutoRefresh { get; set; }
 
     public NuclearesWeb(string? networkLocation = null, int? port = null, bool? autorefresh = null)
     {
@@ -49,12 +39,52 @@ public partial class NuclearesWeb
             RefreshAllData();
     }
 
-    public NuclearesWeb RefreshAllData(CancellationToken cancellationToken = default)
+    public void EnableAutoRefresh(TimeSpan? interval = null) =>
+        EnableAutoRefreshAsync(interval).GetAwaiter().GetResult();
+
+    public async Task EnableAutoRefreshAsync(
+        TimeSpan? interval = null,
+        CancellationToken cancellationToken = default
+    )
     {
-        MainPlant.RefreshAllData(cancellationToken);
-        MainWorld.RefreshAllData(cancellationToken);
-        return this;
+        if (interval == null)
+            interval = TimeSpan.FromSeconds(5);
+        try
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await RefreshAllDataAsync(cancellationToken);
+                await Task.Delay(interval.Value, cancellationToken).ConfigureAwait(false);
+            }
+        }
+        catch (TaskCanceledException) { }
     }
+
+    public void DisableAutoRefresh() => DisableAutoRefreshAsync().GetAwaiter().GetResult();
+
+    public async Task DisableAutoRefreshAsync()
+    {
+        if (AutoRefresh)
+        {
+            AutoRefresh = false;
+            cts.Cancel();
+            try
+            {
+                if (refreshTask != null)
+                    await refreshTask;
+            }
+            catch (OperationCanceledException) { }
+            finally
+            {
+                cts.Dispose();
+                cts = new CancellationTokenSource();
+                refreshTask = null;
+            }
+        }
+    }
+
+    public NuclearesWeb RefreshAllData(CancellationToken cancellationToken = default) =>
+        RefreshAllDataAsync(cancellationToken).GetAwaiter().GetResult();
 
     public async Task<NuclearesWeb> RefreshAllDataAsync(
         CancellationToken cancellationToken = default
@@ -64,6 +94,11 @@ public partial class NuclearesWeb
         await MainWorld.RefreshAllDataAsync(cancellationToken);
         return this;
     }
+
+    public string LoadDataFromGame(
+        string valueName,
+        CancellationToken cancellationToken = default
+    ) => LoadDataFromGameAsync(valueName, cancellationToken).GetAwaiter().GetResult();
 
     public async Task<string> LoadDataFromGameAsync(
         string valueName,
@@ -86,9 +121,4 @@ public partial class NuclearesWeb
             semaphore.Release();
         }
     }
-
-    public string LoadDataFromGame(
-        string valueName,
-        CancellationToken cancellationToken = default
-    ) => LoadDataFromGameAsync(valueName, cancellationToken).GetAwaiter().GetResult();
 }
