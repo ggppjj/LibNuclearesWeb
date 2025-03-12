@@ -4,50 +4,124 @@ using LibNuclearesWeb.NuclearesWeb.World;
 
 namespace LibNuclearesWeb.NuclearesWeb;
 
-public partial class NuclearesWeb : MinObservableObject
+/// <summary>
+/// The main class for the NuclearesWeb library. This class is the main entry point for the library.
+/// </summary>
+public class NuclearesWeb : MinObservableObject, IDisposable
 {
-    private static readonly HttpClient httpClient = new();
-    private readonly SemaphoreSlim semaphore = new(10, 10);
-    private CancellationTokenSource cts = new();
-    private Task? refreshTask;
+    private const int DefaultPort = 8787;
+    private const string DefaultNetworkLocation = "127.0.0.1";
 
+    private HttpClient _httpClient;
+    private bool _disposeHttpClient;
+    private SemaphoreSlim _semaphore = new(10, 10);
+    private CancellationTokenSource _cts = new();
+    private readonly TimeSpan _defaultRefreshInterval = TimeSpan.FromSeconds(5);
+    private Task? _refreshTask;
+    private bool _disposed;
+
+    /// <summary>
+    /// The main plant model.
+    /// </summary>
     public PlantModel MainPlant { get; }
+
+    /// <summary>
+    /// The main world model.
+    /// </summary>
     public WorldModel MainWorld { get; }
-    private string _networkLocation = "127.0.0.1";
+
+    private string _networkLocation = DefaultNetworkLocation;
+
+    /// <summary>
+    /// The network location (URL formatted) of the server.
+    /// </summary>
     public string NetworkLocation
     {
         get => _networkLocation;
-        set => SetPropertyAndNotify(ref _networkLocation, value);
+        private set => SetPropertyAndNotify(ref _networkLocation, value);
     }
 
-    public int Port { get; set; } = 8785;
+    /// <summary>
+    /// The port number of the running server, if that ever changes.
+    /// </summary>
+    public int Port { get; private set; } = DefaultPort;
 
-    public bool AutoRefresh { get; set; }
+    /// <summary>
+    /// Whether to autoload and refresh data in the background on a default 5 second timer.
+    /// </summary>
+    public bool AutoRefresh { get; private set; }
 
-    public NuclearesWeb(string? networkLocation = null, int? port = null, bool? autorefresh = null)
+    /// <summary>
+    /// Constructor for NuclearesWeb.
+    /// </summary>
+    /// <param name="networkLocation">The network location (URL formatted) of the server.</param>
+    /// <param name="port">The port number of the running server, if that ever changes.</param>
+    /// <param name="autoRefresh">Whether to autoload and refresh data in the background on a default 5 second timer.</param>
+    /// <param name="client">HttpClient to use, optional</param>
+    public NuclearesWeb(
+        string networkLocation = DefaultNetworkLocation,
+        int port = DefaultPort,
+        bool autoRefresh = false,
+        HttpClient? client = null
+    )
     {
-        MainPlant = new(this);
+        NetworkLocation = networkLocation;
+        Port = port;
+        if (client == null)
+            _disposeHttpClient = true;
+        _httpClient = client ?? new();
+
         MainWorld = new(this);
-        if (autorefresh != null)
-            AutoRefresh = autorefresh.Value;
-        if (networkLocation != null)
-            NetworkLocation = networkLocation;
-        if (port != null)
-            Port = port.Value;
-        if (AutoRefresh)
+        MainPlant = new(this);
+
+        if (autoRefresh)
+        {
+            EnableAutoRefresh();
             RefreshAllData();
+        }
     }
 
-    public void EnableAutoRefresh(TimeSpan? interval = null) =>
-        EnableAutoRefreshAsync(interval).GetAwaiter().GetResult();
+    /// <summary>
+    /// Initialize the runtime dependencies for the NuclearesWeb object.
+    /// </summary>
+    /// <returns>A fully initialized NuclearesWeb Object.</returns>
+    public NuclearesWeb InitializeRuntimeDependencies()
+    {
+        _httpClient = new HttpClient();
+        _semaphore = new SemaphoreSlim(10, 10);
+        _cts = new CancellationTokenSource();
+        // Reinitialize sub-models with the new runtime context.
+        MainPlant?.Init(this);
+        MainWorld?.Init(this);
+        return this;
+    }
 
-    public async Task EnableAutoRefreshAsync(
+    /// <summary>
+    /// Enable the AutoRefresh feature.
+    /// </summary>
+    /// <param name="interval">TimeSpan interval to refresh.</param>
+    public void EnableAutoRefresh(TimeSpan? interval = null)
+    {
+        interval ??= _defaultRefreshInterval;
+        if (_refreshTask != null && !_refreshTask.IsCompleted)
+            return;
+        AutoRefresh = true;
+        _refreshTask = Task.Run(() => EnableAutoRefreshAsync(interval.Value, _cts.Token));
+    }
+
+    /// <summary>
+    /// Enable the AutoRefresh feature.
+    /// </summary>
+    /// <param name="interval">TimeSpan interval to refresh.</param>
+    /// <param name="cancellationToken">CancellationToken, optional.</param>
+    /// <returns></returns>
+    private async Task EnableAutoRefreshAsync(
         TimeSpan? interval = null,
         CancellationToken cancellationToken = default
     )
     {
-        if (interval == null)
-            interval = TimeSpan.FromSeconds(5);
+        interval ??= _defaultRefreshInterval;
+
         try
         {
             while (!cancellationToken.IsCancellationRequested)
@@ -59,32 +133,47 @@ public partial class NuclearesWeb : MinObservableObject
         catch (TaskCanceledException) { }
     }
 
+    /// <summary>
+    /// Disable the AutoRefresh feature.
+    /// </summary>
     public void DisableAutoRefresh() => DisableAutoRefreshAsync().GetAwaiter().GetResult();
 
-    public async Task DisableAutoRefreshAsync()
+    /// <summary>
+    /// Disable the AutoRefresh feature.
+    /// </summary>
+    /// <returns></returns>
+    private async Task DisableAutoRefreshAsync()
     {
-        if (AutoRefresh)
+        if (!AutoRefresh)
+            return;
+
+        AutoRefresh = false;
+        _cts.Cancel();
+        try
         {
-            AutoRefresh = false;
-            cts.Cancel();
-            try
-            {
-                if (refreshTask != null)
-                    await refreshTask;
-            }
-            catch (OperationCanceledException) { }
-            finally
-            {
-                cts.Dispose();
-                cts = new CancellationTokenSource();
-                refreshTask = null;
-            }
+            if (_refreshTask != null)
+                await _refreshTask;
+        }
+        catch (OperationCanceledException) { }
+        finally
+        {
+            _cts.Dispose();
+            _cts = new CancellationTokenSource();
+            _refreshTask = null;
         }
     }
 
-    public NuclearesWeb RefreshAllData(CancellationToken cancellationToken = default) =>
-        RefreshAllDataAsync(cancellationToken).GetAwaiter().GetResult();
+    /// <summary>
+    /// Refreshes all plant and world data synchronously from the configured server. Prefer async methods where possible.
+    /// </summary>
+    /// <returns>This object post-refresh.</returns>
+    public NuclearesWeb RefreshAllData() => RefreshAllDataAsync().GetAwaiter().GetResult();
 
+    /// <summary>
+    /// Refreshes all plant and world data asynchronously from the configured server.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A Task representing the async operation, with an instance of NuclearesWeb upon completion.</returns>
     public async Task<NuclearesWeb> RefreshAllDataAsync(
         CancellationToken cancellationToken = default
     )
@@ -94,22 +183,32 @@ public partial class NuclearesWeb : MinObservableObject
         return this;
     }
 
-    public string LoadDataFromGame(
-        string valueName,
-        CancellationToken cancellationToken = default
-    ) => LoadDataFromGameAsync(valueName, cancellationToken).GetAwaiter().GetResult();
+    /// <summary>
+    /// Load data from the game server. Synchronous wrapper for easy compatibility.
+    /// </summary>
+    /// <param name="valueName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public string LoadDataFromGame(string valueName) =>
+        GetDataFromGameAsync(valueName).GetAwaiter().GetResult();
 
-    public async Task<string> LoadDataFromGameAsync(
+    /// <summary>
+    /// Load data from the game server.
+    /// </summary>
+    /// <param name="valueName">Name of the parameter on the server to query.</param>
+    /// <param name="cancellationToken">CancellationToken, optional.</param>
+    /// <returns>A Task with the string result from the webserver.</returns>
+    public async Task<string> GetDataFromGameAsync(
         string valueName,
         CancellationToken cancellationToken = default
     )
     {
-        await semaphore.WaitAsync(cancellationToken);
+        await _semaphore.WaitAsync(cancellationToken);
         try
         {
             var url =
                 $"http://{NetworkLocation}:{Port}/?Variable={Uri.EscapeDataString(valueName)}";
-            var response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+            var response = await _httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             return await response
                 .Content.ReadAsStringAsync(cancellationToken)
@@ -117,7 +216,35 @@ public partial class NuclearesWeb : MinObservableObject
         }
         finally
         {
-            semaphore.Release();
+            _semaphore.Release();
         }
+    }
+
+    /// <summary>
+    /// Dispose of the NuclearesWeb object.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Releases all resources used by the current instance of the <see cref="NuclearesWeb"/> class.
+    /// </summary>
+    /// <param name="disposing"></param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+        if (disposing)
+        {
+            if (_disposeHttpClient)
+                _httpClient.Dispose();
+            _semaphore.Dispose();
+            _cts.Cancel();
+            _cts.Dispose();
+        }
+        _disposed = true;
     }
 }

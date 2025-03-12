@@ -64,8 +64,8 @@ public class WorldModel : MinObservableObject
     {
         if (_nuclearesWeb == null)
             throw new InvalidOperationException("NuclearesWeb object not set");
-        Time = await _nuclearesWeb.LoadDataFromGameAsync("TIME", cancellationToken);
-        TimeStamp = await _nuclearesWeb.LoadDataFromGameAsync("TIME_STAMP", cancellationToken);
+        Time = await _nuclearesWeb.GetDataFromGameAsync("TIME", cancellationToken);
+        TimeStamp = await _nuclearesWeb.GetDataFromGameAsync("TIME_STAMP", cancellationToken);
         return this;
     }
 }

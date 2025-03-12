@@ -5,12 +5,12 @@ namespace LibNuclearesWeb.NuclearesWeb.Plant.Reactor.Core.Coolant;
 
 public partial class CoolantModel : MinObservableObject
 {
-    [JsonIgnore]
     private NuclearesWeb? _nuclearesWeb;
 
     [JsonInclude]
     public List<PumpModel> PumpList { get; private set; } = [];
 
+    #region Notifiable Properties.
     private string _coreState = string.Empty;
 
     [JsonInclude]
@@ -91,40 +91,37 @@ public partial class CoolantModel : MinObservableObject
         get => _coreFlowPercentReached;
         set => SetPropertyAndNotify(ref _coreFlowPercentReached, value);
     }
+    #endregion
 
     public CoolantModel()
     {
-        PumpList.Add(new());
-        PumpList.Add(new());
-        PumpList.Add(new());
+        PumpList.Add(new(0));
+        PumpList.Add(new(1));
+        PumpList.Add(new(2));
     }
 
     internal CoolantModel(NuclearesWeb nuclearesWeb)
     {
         _nuclearesWeb = nuclearesWeb;
-        PumpList.Add(new(_nuclearesWeb));
-        PumpList.Add(new(_nuclearesWeb));
-        PumpList.Add(new(_nuclearesWeb));
+        PumpList.Add(new(0, _nuclearesWeb));
+        PumpList.Add(new(1, _nuclearesWeb));
+        PumpList.Add(new(2, _nuclearesWeb));
     }
 
-    public CoolantModel Init(NuclearesWeb nuclearesWeb) =>
-        InitAsync(nuclearesWeb).GetAwaiter().GetResult();
-
-    public async Task<CoolantModel> InitAsync(
-        NuclearesWeb nuclearesWeb,
-        CancellationToken cancellationToken
-    )
+    public CoolantModel Init(NuclearesWeb nuclearesWeb)
     {
         _nuclearesWeb = nuclearesWeb;
         foreach (var pump in PumpList)
-            await pump.InitAsync(nuclearesWeb, cancellationToken);
+            pump.Init(nuclearesWeb);
         return this;
     }
 
     public CoolantModel RefreshAllData() =>
         RefreshAllDataAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
-    public async Task<CoolantModel> RefreshAllDataAsync(CancellationToken cancellationToken)
+    public async Task<CoolantModel> RefreshAllDataAsync(
+        CancellationToken cancellationToken = default
+    )
     {
         foreach (var pump in PumpList)
             await pump.RefreshAllDataAsync(cancellationToken);

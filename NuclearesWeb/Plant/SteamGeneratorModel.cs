@@ -113,23 +113,23 @@ public class SteamGeneratorModel : MinObservableObject
             throw new InvalidOperationException(
                 "NuclearesWeb object is null. Run Init with a valid NuclearesWeb instance first!"
             );
-        var kwTask = _nucleares.LoadDataFromGameAsync(
+        var kwTask = _nucleares.GetDataFromGameAsync(
             $"GENERATOR_{GeneratorId}_KW",
             cancellationToken
         );
-        var vTask = _nucleares.LoadDataFromGameAsync(
+        var vTask = _nucleares.GetDataFromGameAsync(
             $"GENERATOR_{GeneratorId}_V",
             cancellationToken
         );
-        var aTask = _nucleares.LoadDataFromGameAsync(
+        var aTask = _nucleares.GetDataFromGameAsync(
             $"GENERATOR_{GeneratorId}_A",
             cancellationToken
         );
-        var hzTask = _nucleares.LoadDataFromGameAsync(
+        var hzTask = _nucleares.GetDataFromGameAsync(
             $"GENERATOR_{GeneratorId}_HERTZ",
             cancellationToken
         );
-        var breakerTask = _nucleares.LoadDataFromGameAsync(
+        var breakerTask = _nucleares.GetDataFromGameAsync(
             $"GENERATOR_{GeneratorId}_BREAKER",
             cancellationToken
         );

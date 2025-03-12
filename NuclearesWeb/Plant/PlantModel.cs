@@ -5,23 +5,6 @@ namespace LibNuclearesWeb.NuclearesWeb.Plant;
 
 public class PlantModel
 {
-    public PlantModel()
-    {
-        SteamGeneratorList.Add(new(0));
-        SteamGeneratorList.Add(new(1));
-        SteamGeneratorList.Add(new(2));
-    }
-
-    internal PlantModel(NuclearesWeb nuclearesWeb)
-    {
-        _nuclearesWeb = nuclearesWeb;
-        MainReactor = new(nuclearesWeb);
-        SteamGeneratorList.Add(new(nuclearesWeb, 0));
-        SteamGeneratorList.Add(new(nuclearesWeb, 1));
-        SteamGeneratorList.Add(new(nuclearesWeb, 2));
-    }
-
-    [JsonIgnore]
     private NuclearesWeb? _nuclearesWeb;
 
     [JsonInclude]
@@ -30,24 +13,34 @@ public class PlantModel
     [JsonInclude]
     public List<SteamGeneratorModel> SteamGeneratorList { get; } = [];
 
-    public PlantModel Init(NuclearesWeb nuclearesWeb) =>
-        InitAsync(nuclearesWeb).GetAwaiter().GetResult();
+    public PlantModel()
+    {
+        MainReactor = new();
+        SteamGeneratorList.Add(new(0));
+        SteamGeneratorList.Add(new(1));
+        SteamGeneratorList.Add(new(2));
+    }
 
-    public Task<PlantModel> InitAsync(
-        NuclearesWeb nuclearesWeb,
-        CancellationToken cancellationToken = default
-    )
+    internal PlantModel(NuclearesWeb nuclearesWeb)
+    {
+        _nuclearesWeb = nuclearesWeb;
+        MainReactor = new(_nuclearesWeb);
+        SteamGeneratorList.Add(new(_nuclearesWeb, 0));
+        SteamGeneratorList.Add(new(_nuclearesWeb, 1));
+        SteamGeneratorList.Add(new(_nuclearesWeb, 2));
+    }
+
+    public PlantModel Init(NuclearesWeb nuclearesWeb)
     {
         _nuclearesWeb = nuclearesWeb;
         foreach (var steamGenerator in SteamGeneratorList)
-            steamGenerator.Init(nuclearesWeb);
-        if (_nuclearesWeb.AutoRefresh)
-            return RefreshAllDataAsync(cancellationToken);
-        return Task.FromResult(this);
+            steamGenerator.Init(_nuclearesWeb);
+        MainReactor.Init(_nuclearesWeb);
+        return this;
     }
 
-    public PlantModel RefreshAllData(CancellationToken cancellationToken = default) =>
-        RefreshAllDataAsync(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+    public PlantModel RefreshAllData() =>
+        RefreshAllDataAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
     public async Task<PlantModel> RefreshAllDataAsync(CancellationToken cancellationToken = default)
     {

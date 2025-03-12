@@ -16,16 +16,10 @@ public partial class ReactorModel
         _nuclearesWeb = nucleares;
     }
 
-    public ReactorModel Init(NuclearesWeb nuclearesWeb) =>
-        InitAsync(nuclearesWeb).GetAwaiter().GetResult();
-
-    public async Task<ReactorModel> InitAsync(
-        NuclearesWeb nucleares,
-        CancellationToken cancellationToken = default
-    )
+    public ReactorModel Init(NuclearesWeb nucleares)
     {
         _nuclearesWeb = nucleares;
-        await MainCore.InitAsync(nucleares, cancellationToken);
+        MainCore.Init(nucleares);
         return this;
     }
 
@@ -37,6 +31,5 @@ public partial class ReactorModel
         return this;
     }
 
-    public ReactorModel RefreshAllData(CancellationToken cancellationToken = default) =>
-        Task.Run(() => RefreshAllDataAsync(cancellationToken)).GetAwaiter().GetResult();
+    public ReactorModel RefreshAllData() => RefreshAllDataAsync().GetAwaiter().GetResult();
 }

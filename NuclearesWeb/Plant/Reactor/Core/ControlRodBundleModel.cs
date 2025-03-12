@@ -8,6 +8,7 @@ public class ControlRodBundleModel : MinObservableObject
     [JsonIgnore]
     private NuclearesWeb? _nuclearesWeb;
 
+    #region Notifiable Properties.
     private string _status = string.Empty;
 
     [JsonInclude]
@@ -106,6 +107,7 @@ public class ControlRodBundleModel : MinObservableObject
         get => _aligned;
         set => SetPropertyAndNotify(ref _aligned, value);
     }
+    #endregion
 
     public ControlRodBundleModel() { }
 
@@ -139,16 +141,10 @@ public class ControlRodBundleModel : MinObservableObject
         return this;
     }
 
-    public ControlRodBundleModel Init(NuclearesWeb nuclearesWeb) =>
-        InitAsync(nuclearesWeb).ConfigureAwait(false).GetAwaiter().GetResult();
-
-    public Task<ControlRodBundleModel> InitAsync(
-        NuclearesWeb nuclearesWeb,
-        CancellationToken cancellationToken = default
-    )
+    public ControlRodBundleModel Init(NuclearesWeb nuclearesWeb)
     {
         _nuclearesWeb = nuclearesWeb;
-        return Task.FromResult(this);
+        return this;
     }
 
     public ControlRodBundleModel RefreshAllData() =>
@@ -160,38 +156,40 @@ public class ControlRodBundleModel : MinObservableObject
     {
         if (_nuclearesWeb == null)
             throw new InvalidOperationException("NuclearesWeb is not initialized");
-        var statusTask = _nuclearesWeb.LoadDataFromGameAsync("RODS_STATUS", cancellationToken);
-        var movementSpeedTask = _nuclearesWeb.LoadDataFromGameAsync(
+        #region Tasks.
+        var statusTask = _nuclearesWeb.GetDataFromGameAsync("RODS_STATUS", cancellationToken);
+        var movementSpeedTask = _nuclearesWeb.GetDataFromGameAsync(
             "RODS_MOVEMENT_SPEED",
             cancellationToken
         );
-        var movementSpeedDecreasedHighTemperatureTask = _nuclearesWeb.LoadDataFromGameAsync(
+        var movementSpeedDecreasedHighTemperatureTask = _nuclearesWeb.GetDataFromGameAsync(
             "RODS_MOVEMENT_SPEED_DECREASED_HIGH_TEMPERATURE",
             cancellationToken
         );
-        var deformedTask = _nuclearesWeb.LoadDataFromGameAsync("RODS_DEFORMED", cancellationToken);
-        var temperatureTask = _nuclearesWeb.LoadDataFromGameAsync(
+        var deformedTask = _nuclearesWeb.GetDataFromGameAsync("RODS_DEFORMED", cancellationToken);
+        var temperatureTask = _nuclearesWeb.GetDataFromGameAsync(
             "RODS_TEMPERATURE",
             cancellationToken
         );
-        var maxTemperatureTask = _nuclearesWeb.LoadDataFromGameAsync(
+        var maxTemperatureTask = _nuclearesWeb.GetDataFromGameAsync(
             "RODS_MAX_TEMPERATURE",
             cancellationToken
         );
-        var orderedPositionTask = _nuclearesWeb.LoadDataFromGameAsync(
+        var orderedPositionTask = _nuclearesWeb.GetDataFromGameAsync(
             "RODS_ORDERED_POSITION",
             cancellationToken
         );
-        var actualPositionTask = _nuclearesWeb.LoadDataFromGameAsync(
+        var actualPositionTask = _nuclearesWeb.GetDataFromGameAsync(
             "RODS_ACTUAL_POSITION",
             cancellationToken
         );
-        var reachedPositionTask = _nuclearesWeb.LoadDataFromGameAsync(
+        var reachedPositionTask = _nuclearesWeb.GetDataFromGameAsync(
             "RODS_REACHED_POSITION",
             cancellationToken
         );
-        var quantityTask = _nuclearesWeb.LoadDataFromGameAsync("RODS_QUANTITY", cancellationToken);
-        var alignedTask = _nuclearesWeb.LoadDataFromGameAsync("RODS_ALIGNED", cancellationToken);
+        var quantityTask = _nuclearesWeb.GetDataFromGameAsync("RODS_QUANTITY", cancellationToken);
+        var alignedTask = _nuclearesWeb.GetDataFromGameAsync("RODS_ALIGNED", cancellationToken);
+        #endregion
         await Task.WhenAll(
                 statusTask,
                 movementSpeedTask,

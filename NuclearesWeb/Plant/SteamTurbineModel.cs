@@ -66,15 +66,15 @@ public partial class SteamTurbineModel : MinObservableObject
             );
         }
 
-        var rpmTask = _nuclearesWeb.LoadDataFromGameAsync(
+        var rpmTask = _nuclearesWeb.GetDataFromGameAsync(
             $"STEAM_TURBINE_{TurbineId}_RPM",
             cancellationToken
         );
-        var tempTask = _nuclearesWeb.LoadDataFromGameAsync(
+        var tempTask = _nuclearesWeb.GetDataFromGameAsync(
             $"STEAM_TURBINE_{TurbineId}_TEMPERATURE",
             cancellationToken
         );
-        var pressureTask = _nuclearesWeb.LoadDataFromGameAsync(
+        var pressureTask = _nuclearesWeb.GetDataFromGameAsync(
             $"STEAM_TURBINE_{TurbineId}_PRESSURE",
             cancellationToken
         );
