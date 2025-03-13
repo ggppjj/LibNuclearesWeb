@@ -5,7 +5,6 @@ namespace LibNuclearesWeb.NuclearesWeb.Plant.Reactor.Core;
 
 public class ControlRodBundleModel : MinObservableObject
 {
-    [JsonIgnore]
     private NuclearesWeb? _nuclearesWeb;
 
     #region Notifiable Properties.
@@ -176,21 +175,21 @@ public class ControlRodBundleModel : MinObservableObject
             cancellationToken
         );
         var orderedPositionTask = _nuclearesWeb.GetDataFromGameAsync(
-            "RODS_ORDERED_POSITION",
+            "RODS_POS_ORDERED",
             cancellationToken
         );
         var actualPositionTask = _nuclearesWeb.GetDataFromGameAsync(
-            "RODS_ACTUAL_POSITION",
+            "RODS_POS_ACTUAL",
             cancellationToken
         );
         var reachedPositionTask = _nuclearesWeb.GetDataFromGameAsync(
-            "RODS_REACHED_POSITION",
+            "RODS_POS_REACHED",
             cancellationToken
         );
         var quantityTask = _nuclearesWeb.GetDataFromGameAsync("RODS_QUANTITY", cancellationToken);
         var alignedTask = _nuclearesWeb.GetDataFromGameAsync("RODS_ALIGNED", cancellationToken);
         #endregion
-        await Task.WhenAll(
+        _ = await Task.WhenAll(
                 statusTask,
                 movementSpeedTask,
                 movementSpeedDecreasedHighTemperatureTask,
@@ -204,7 +203,7 @@ public class ControlRodBundleModel : MinObservableObject
                 alignedTask
             )
             .ConfigureAwait(false);
-        LoadAllData(
+        return LoadAllData(
             statusTask.Result,
             movementSpeedTask.Result,
             movementSpeedDecreasedHighTemperatureTask.Result,
@@ -217,6 +216,5 @@ public class ControlRodBundleModel : MinObservableObject
             quantityTask.Result,
             alignedTask.Result
         );
-        return this;
     }
 }

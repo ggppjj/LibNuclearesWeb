@@ -1,9 +1,10 @@
 ﻿using System.Text.Json.Serialization;
+using LibNuclearesWeb.BaseClasses;
 using LibNuclearesWeb.NuclearesWeb.Plant.Reactor;
 
 namespace LibNuclearesWeb.NuclearesWeb.Plant;
 
-public class PlantModel
+public class PlantModel : MinObservableObject
 {
     private NuclearesWeb? _nuclearesWeb;
 
@@ -12,6 +13,42 @@ public class PlantModel
 
     [JsonInclude]
     public List<SteamGeneratorModel> SteamGeneratorList { get; } = [];
+
+    private string _numberOfCoreCirculationPumps = string.Empty;
+
+    [JsonInclude]
+    public string NumberOfCoreCirculationPumps
+    {
+        get => _numberOfCoreCirculationPumps;
+        set => SetPropertyAndNotify(ref _numberOfCoreCirculationPumps, value);
+    }
+
+    private string _numberOfFreightPumps = string.Empty;
+
+    [JsonInclude]
+    public string NumberOfFreightPumps
+    {
+        get => _numberOfFreightPumps;
+        set => SetPropertyAndNotify(ref _numberOfFreightPumps, value);
+    }
+
+    private string _auxDivertSurplusFromKW = string.Empty;
+
+    [JsonInclude]
+    public string AuxDivertSurplusFromKW
+    {
+        get => _auxDivertSurplusFromKW;
+        set => SetPropertyAndNotify(ref _auxDivertSurplusFromKW, value);
+    }
+
+    private string _auxEffectivelyDerivedEnergyKW = string.Empty;
+
+    [JsonInclude]
+    public string AuxEffectivelyDerivedEnergyKW
+    {
+        get => _auxEffectivelyDerivedEnergyKW;
+        set => SetPropertyAndNotify(ref _auxEffectivelyDerivedEnergyKW, value);
+    }
 
     public PlantModel()
     {
@@ -30,12 +67,26 @@ public class PlantModel
         SteamGeneratorList.Add(new(_nuclearesWeb, 2));
     }
 
+    public PlantModel SetAllData(
+        string numCoolPump,
+        string numUncoolPump,
+        string divertKW,
+        string derivedKw
+    )
+    {
+        NumberOfCoreCirculationPumps = numCoolPump;
+        NumberOfFreightPumps = numUncoolPump;
+        AuxDivertSurplusFromKW = divertKW;
+        AuxEffectivelyDerivedEnergyKW = derivedKw;
+        return this;
+    }
+
     public PlantModel Init(NuclearesWeb nuclearesWeb)
     {
         _nuclearesWeb = nuclearesWeb;
         foreach (var steamGenerator in SteamGeneratorList)
-            steamGenerator.Init(_nuclearesWeb);
-        MainReactor.Init(_nuclearesWeb);
+            _ = steamGenerator.Init(_nuclearesWeb);
+        _ = MainReactor.Init(_nuclearesWeb);
         return this;
     }
 
@@ -44,11 +95,37 @@ public class PlantModel
 
     public async Task<PlantModel> RefreshAllDataAsync(CancellationToken cancellationToken = default)
     {
-        List<Task> tasks = [];
-        tasks.Add(MainReactor.RefreshAllDataAsync(cancellationToken));
+        if (_nuclearesWeb == null)
+            throw new InvalidOperationException("NuclearesWeb object is null!");
+        var coolPumpNumberTask = _nuclearesWeb.GetDataFromGameAsync(
+            "COOLANT_CORE_QUANTITY_CIRCULATION_PUMPS_PRESENT",
+            cancellationToken
+        );
+        var uncoolPumpNumberTask = _nuclearesWeb.GetDataFromGameAsync(
+            "COOLANT_CORE_QUANTITY_FREIGHT_PUMPS_PRESENT",
+            cancellationToken
+        );
+        var auxDivertTask = _nuclearesWeb.GetDataFromGameAsync(
+            "AUX_DIVERT_SURPLUS_FROM_KW",
+            cancellationToken
+        );
+        var auxDerivedTask = _nuclearesWeb.GetDataFromGameAsync(
+            "AUX_EFFECTIVELY_DERIVED_ENERGY_KW",
+            cancellationToken
+        );
+        List<Task> childTasks = [];
+        childTasks.Add(MainReactor.RefreshAllDataAsync(cancellationToken));
+        childTasks.AddRange(
+            [coolPumpNumberTask, uncoolPumpNumberTask, auxDerivedTask, auxDivertTask]
+        );
         foreach (var generator in SteamGeneratorList)
-            tasks.Add(generator.RefreshAllDataAsync(cancellationToken));
-        await Task.WhenAll(tasks).ConfigureAwait(false);
-        return this;
+            childTasks.Add(generator.RefreshAllDataAsync(cancellationToken));
+        await Task.WhenAll(childTasks).ConfigureAwait(false);
+        return SetAllData(
+            coolPumpNumberTask.Result,
+            uncoolPumpNumberTask.Result,
+            auxDivertTask.Result,
+            auxDerivedTask.Result
+        );
     }
 }

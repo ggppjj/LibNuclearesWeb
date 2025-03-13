@@ -83,7 +83,7 @@ public class PumpModel : MinObservableObject
         Id = id;
         _nuclearesWeb = nuclearesWeb;
         if (_nuclearesWeb.AutoRefresh)
-            RefreshAllData();
+            _ = RefreshAllData();
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public class PumpModel : MinObservableObject
     /// <param name="overloadStatus"></param>
     /// <param name="orderedSpeed"></param>
     /// <param name="speed"></param>
-    private void SetAllData(
+    private PumpModel SetAllData(
         string status,
         string dryStatus,
         string overloadStatus,
@@ -107,6 +107,7 @@ public class PumpModel : MinObservableObject
         OverloadStatus = overloadStatus;
         OrderedSpeed = orderedSpeed;
         Speed = speed;
+        return this;
     }
 
     /// <summary>
@@ -158,20 +159,19 @@ public class PumpModel : MinObservableObject
             cancellationToken
         );
         #endregion
-        await Task.WhenAll(
+        _ = await Task.WhenAll(
             statusTask,
             dryStatusTask,
             overloadStatusTask,
             orderedSpeedTask,
             speedTask
         );
-        SetAllData(
+        return SetAllData(
             statusTask.Result,
             dryStatusTask.Result,
             overloadStatusTask.Result,
             orderedSpeedTask.Result,
             speedTask.Result
         );
-        return this;
     }
 }

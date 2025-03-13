@@ -9,7 +9,6 @@ public class CoreModel : MinObservableObject
     /// <summary>
     /// NuclearesWeb dependency.
     /// </summary>
-    [JsonIgnore]
     private NuclearesWeb? _nuclearesWeb;
 
     /// <summary>
@@ -389,7 +388,7 @@ public class CoreModel : MinObservableObject
             cancellationToken
         );
         #endregion
-        await Task.WhenAll(
+        _ = await Task.WhenAll(
                 tempTask,
                 opTempTask,
                 maxTempTask,
@@ -442,8 +441,8 @@ public class CoreModel : MinObservableObject
     public CoreModel Init(NuclearesWeb nuclearesWeb)
     {
         _nuclearesWeb = nuclearesWeb;
-        ControlRodBundles.Init(nuclearesWeb);
-        Coolant.Init(nuclearesWeb);
+        _ = ControlRodBundles.Init(nuclearesWeb);
+        _ = Coolant.Init(nuclearesWeb);
         return this;
     }
 }

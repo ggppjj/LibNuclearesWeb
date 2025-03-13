@@ -3,7 +3,7 @@ using LibNuclearesWeb.BaseClasses;
 
 namespace LibNuclearesWeb.NuclearesWeb.Plant.Reactor.Core.Coolant;
 
-public partial class CoolantModel : MinObservableObject
+public class CoolantModel : MinObservableObject
 {
     private NuclearesWeb? _nuclearesWeb;
 
@@ -112,7 +112,7 @@ public partial class CoolantModel : MinObservableObject
     {
         _nuclearesWeb = nuclearesWeb;
         foreach (var pump in PumpList)
-            pump.Init(nuclearesWeb);
+            _ = pump.Init(nuclearesWeb);
         return this;
     }
 

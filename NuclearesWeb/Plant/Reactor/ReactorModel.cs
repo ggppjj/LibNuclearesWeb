@@ -5,21 +5,16 @@ namespace LibNuclearesWeb.NuclearesWeb.Plant.Reactor;
 
 public partial class ReactorModel
 {
-    [JsonIgnore]
-    private NuclearesWeb? _nuclearesWeb;
+    [JsonInclude]
     public CoreModel MainCore { get; } = new();
 
     public ReactorModel() { }
 
-    internal ReactorModel(NuclearesWeb nucleares)
-    {
-        _nuclearesWeb = nucleares;
-    }
+    internal ReactorModel(NuclearesWeb nuclearesWeb) => Init(nuclearesWeb);
 
-    public ReactorModel Init(NuclearesWeb nucleares)
+    public ReactorModel Init(NuclearesWeb nuclearesWeb)
     {
-        _nuclearesWeb = nucleares;
-        MainCore.Init(nucleares);
+        _ = MainCore.Init(nuclearesWeb);
         return this;
     }
 
@@ -27,7 +22,7 @@ public partial class ReactorModel
         CancellationToken cancellationToken = default
     )
     {
-        await MainCore.RefreshAllDataAsync(cancellationToken);
+        _ = await MainCore.RefreshAllDataAsync(cancellationToken);
         return this;
     }
 

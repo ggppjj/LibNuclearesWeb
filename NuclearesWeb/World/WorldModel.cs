@@ -33,8 +33,8 @@ public class WorldModel : MinObservableObject
         _nuclearesWeb = nuclearesWeb;
         if (_nuclearesWeb.AutoRefresh)
         {
-            Time = _nuclearesWeb.LoadDataFromGame("TIME");
-            TimeStamp = _nuclearesWeb.LoadDataFromGame("TIME_STAMP");
+            Time = _nuclearesWeb.GetDataFromGame("TIME");
+            TimeStamp = _nuclearesWeb.GetDataFromGame("TIME_STAMP");
         }
         else
         {

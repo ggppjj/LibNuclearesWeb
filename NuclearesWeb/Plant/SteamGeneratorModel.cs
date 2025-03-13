@@ -5,7 +5,6 @@ namespace LibNuclearesWeb.NuclearesWeb.Plant;
 
 public class SteamGeneratorModel : MinObservableObject
 {
-    [JsonIgnore]
     private NuclearesWeb? _nucleares;
 
     [JsonInclude]
@@ -75,7 +74,7 @@ public class SteamGeneratorModel : MinObservableObject
         _nucleares = nucleares;
         GeneratorId = generatorId;
         if (_nucleares.AutoRefresh)
-            RefreshAllData();
+            _ = RefreshAllData();
     }
 
     private SteamGeneratorModel SetAllData(string kw, string v, string a, string hz, string breaker)
@@ -97,9 +96,9 @@ public class SteamGeneratorModel : MinObservableObject
     )
     {
         _nucleares = nucleares;
-        if (_nucleares.AutoRefresh)
-            return RefreshAllDataAsync(cancellationToken);
-        return Task.FromResult(this);
+        return _nucleares.AutoRefresh
+            ? RefreshAllDataAsync(cancellationToken)
+            : Task.FromResult(this);
     }
 
     public SteamGeneratorModel RefreshAllData(CancellationToken cancellationToken = default) =>
@@ -110,9 +109,13 @@ public class SteamGeneratorModel : MinObservableObject
     )
     {
         if (_nucleares == null)
+        {
             throw new InvalidOperationException(
                 "NuclearesWeb object is null. Run Init with a valid NuclearesWeb instance first!"
             );
+        }
+
+        #region Tasks.
         var kwTask = _nucleares.GetDataFromGameAsync(
             $"GENERATOR_{GeneratorId}_KW",
             cancellationToken
@@ -133,8 +136,15 @@ public class SteamGeneratorModel : MinObservableObject
             $"GENERATOR_{GeneratorId}_BREAKER",
             cancellationToken
         );
-        await Task.WhenAll(kwTask, vTask, aTask, hzTask, breakerTask).ConfigureAwait(false);
-        SetAllData(kwTask.Result, vTask.Result, aTask.Result, hzTask.Result, breakerTask.Result);
-        return this;
+        #endregion
+
+        _ = await Task.WhenAll(kwTask, vTask, aTask, hzTask, breakerTask).ConfigureAwait(false);
+        return SetAllData(
+            kwTask.Result,
+            vTask.Result,
+            aTask.Result,
+            hzTask.Result,
+            breakerTask.Result
+        );
     }
 }

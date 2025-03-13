@@ -67,18 +67,16 @@ public class NuclearesWeb : MinObservableObject, IDisposable
     {
         NetworkLocation = networkLocation;
         Port = port;
-        if (client == null)
-            _disposeHttpClient = true;
+        _disposeHttpClient = client == null;
         _httpClient = client ?? new();
 
         MainWorld = new(this);
         MainPlant = new(this);
 
-        if (autoRefresh)
-        {
-            EnableAutoRefresh();
-            RefreshAllData();
-        }
+        if (!autoRefresh)
+            return;
+        EnableAutoRefresh();
+        _ = RefreshAllData();
     }
 
     /// <summary>
@@ -91,8 +89,8 @@ public class NuclearesWeb : MinObservableObject, IDisposable
         _semaphore = new SemaphoreSlim(10, 10);
         _cts = new CancellationTokenSource();
         // Reinitialize sub-models with the new runtime context.
-        MainPlant?.Init(this);
-        MainWorld?.Init(this);
+        _ = (MainPlant?.Init(this));
+        _ = (MainWorld?.Init(this));
         return this;
     }
 
@@ -126,7 +124,7 @@ public class NuclearesWeb : MinObservableObject, IDisposable
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await RefreshAllDataAsync(cancellationToken);
+                _ = await RefreshAllDataAsync(cancellationToken);
                 await Task.Delay(interval.Value, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -146,7 +144,6 @@ public class NuclearesWeb : MinObservableObject, IDisposable
     {
         if (!AutoRefresh)
             return;
-
         AutoRefresh = false;
         _cts.Cancel();
         try
@@ -178,8 +175,8 @@ public class NuclearesWeb : MinObservableObject, IDisposable
         CancellationToken cancellationToken = default
     )
     {
-        await MainPlant.RefreshAllDataAsync(cancellationToken);
-        await MainWorld.RefreshAllDataAsync(cancellationToken);
+        _ = await MainPlant.RefreshAllDataAsync(cancellationToken);
+        _ = await MainWorld.RefreshAllDataAsync(cancellationToken);
         return this;
     }
 
@@ -189,7 +186,7 @@ public class NuclearesWeb : MinObservableObject, IDisposable
     /// <param name="valueName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public string LoadDataFromGame(string valueName) =>
+    public string GetDataFromGame(string valueName) =>
         GetDataFromGameAsync(valueName).GetAwaiter().GetResult();
 
     /// <summary>
@@ -209,14 +206,14 @@ public class NuclearesWeb : MinObservableObject, IDisposable
             var url =
                 $"http://{NetworkLocation}:{Port}/?Variable={Uri.EscapeDataString(valueName)}";
             var response = await _httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             return await response
                 .Content.ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false);
         }
         finally
         {
-            _semaphore.Release();
+            _ = _semaphore.Release();
         }
     }
 

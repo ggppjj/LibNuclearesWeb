@@ -3,7 +3,7 @@ using LibNuclearesWeb.BaseClasses;
 
 namespace LibNuclearesWeb.NuclearesWeb.Plant;
 
-public partial class SteamTurbineModel : MinObservableObject
+public class SteamTurbineModel : MinObservableObject
 {
     [JsonIgnore]
     private NuclearesWeb? _nuclearesWeb;
@@ -78,7 +78,7 @@ public partial class SteamTurbineModel : MinObservableObject
             $"STEAM_TURBINE_{TurbineId}_PRESSURE",
             cancellationToken
         );
-        await Task.WhenAll(rpmTask, tempTask, pressureTask).ConfigureAwait(false);
+        _ = await Task.WhenAll(rpmTask, tempTask, pressureTask).ConfigureAwait(false);
         return SetAllData(rpmTask.Result, tempTask.Result, pressureTask.Result);
     }
 }
