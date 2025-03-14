@@ -5,7 +5,6 @@ namespace LibNuclearesWeb.NuclearesWeb.Plant;
 
 public class SteamTurbineModel : MinObservableObject
 {
-    [JsonIgnore]
     private NuclearesWeb? _nuclearesWeb;
 
     [JsonInclude]
@@ -51,6 +50,13 @@ public class SteamTurbineModel : MinObservableObject
         Pressure = pressure;
         return this;
     }
+
+    public SteamTurbineModel Init(NuclearesWeb nuclearesWeb)
+    {
+        _nuclearesWeb = nuclearesWeb;
+        return this;
+    }
+
 
     public SteamTurbineModel RefreshAllData(CancellationToken cancellationToken = default) =>
         RefreshAllDataAsync(cancellationToken).GetAwaiter().GetResult();

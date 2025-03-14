@@ -436,7 +436,6 @@ public class CoreModel : MinObservableObject
     /// Initializes the CoreModel object. This method should be called after the object is created with an empty initializer.
     /// </summary>
     /// <param name="nuclearesWeb">NuclearesWeb base dependency.</param>
-    /// <param name="cancellationToken">CancellationToken, optional.</param>
     /// <returns>A Task that returns this object post-init as a result.</returns>
     public CoreModel Init(NuclearesWeb nuclearesWeb)
     {

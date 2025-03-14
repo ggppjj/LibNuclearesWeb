@@ -1,4 +1,5 @@
-﻿using LibNuclearesWeb.BaseClasses;
+﻿using System.Diagnostics.CodeAnalysis;
+using LibNuclearesWeb.BaseClasses;
 using LibNuclearesWeb.NuclearesWeb.Plant;
 using LibNuclearesWeb.NuclearesWeb.World;
 
@@ -7,13 +8,14 @@ namespace LibNuclearesWeb.NuclearesWeb;
 /// <summary>
 /// The main class for the NuclearesWeb library. This class is the main entry point for the library.
 /// </summary>
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public class NuclearesWeb : MinObservableObject, IDisposable
 {
     private const int DefaultPort = 8787;
     private const string DefaultNetworkLocation = "127.0.0.1";
 
     private HttpClient _httpClient;
-    private bool _disposeHttpClient;
+    private readonly bool _disposeHttpClient;
     private SemaphoreSlim _semaphore = new(10, 10);
     private CancellationTokenSource _cts = new();
     private readonly TimeSpan _defaultRefreshInterval = TimeSpan.FromSeconds(5);
@@ -101,7 +103,7 @@ public class NuclearesWeb : MinObservableObject, IDisposable
     public void EnableAutoRefresh(TimeSpan? interval = null)
     {
         interval ??= _defaultRefreshInterval;
-        if (_refreshTask != null && !_refreshTask.IsCompleted)
+        if (_refreshTask is { IsCompleted: false })
             return;
         AutoRefresh = true;
         _refreshTask = Task.Run(() => EnableAutoRefreshAsync(interval.Value, _cts.Token));
@@ -145,7 +147,7 @@ public class NuclearesWeb : MinObservableObject, IDisposable
         if (!AutoRefresh)
             return;
         AutoRefresh = false;
-        _cts.Cancel();
+        await _cts.CancelAsync();
         try
         {
             if (_refreshTask != null)
@@ -183,9 +185,8 @@ public class NuclearesWeb : MinObservableObject, IDisposable
     /// <summary>
     /// Load data from the game server. Synchronous wrapper for easy compatibility.
     /// </summary>
-    /// <param name="valueName"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="valueName">The name of the value to query.</param>
+    /// <returns>String data from the game.</returns>
     public string GetDataFromGame(string valueName) =>
         GetDataFromGameAsync(valueName).GetAwaiter().GetResult();
 

@@ -10,13 +10,13 @@ public class SteamGeneratorModel : MinObservableObject
     [JsonInclude]
     public int GeneratorId { get; private set; } = -1;
 
-    private string _activePowerKW = string.Empty;
+    private string _activePowerKw = string.Empty;
 
     [JsonInclude]
-    public string ActivePowerKW
+    public string ActivePowerKw
     {
-        get => _activePowerKW;
-        private set => SetPropertyAndNotify(ref _activePowerKW, value);
+        get => _activePowerKw;
+        private set => SetPropertyAndNotify(ref _activePowerKw, value);
     }
 
     private string _activePowerV = string.Empty;
@@ -79,7 +79,7 @@ public class SteamGeneratorModel : MinObservableObject
 
     private SteamGeneratorModel SetAllData(string kw, string v, string a, string hz, string breaker)
     {
-        ActivePowerKW = kw;
+        ActivePowerKw = kw;
         ActivePowerV = v;
         ActivePowerA = a;
         ActivePowerHz = hz;

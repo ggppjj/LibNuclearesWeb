@@ -2,6 +2,7 @@
 root = true
 
 # C# files
+# noinspection EditorConfigKeyCorrectness
 [*.cs]
 
 #### Core EditorConfig Options ####
