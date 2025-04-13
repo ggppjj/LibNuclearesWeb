@@ -6,6 +6,7 @@ namespace LibNuclearesWeb.NuclearesWeb.Plant.Reactor.Core;
 public class ControlRodBundleModel : MinObservableObject
 {
     private NuclearesWeb? _nuclearesWeb;
+    private bool _userHasSetPosition = false;
 
     #region Notifiable Properties.
     private string _status = string.Empty;
@@ -14,7 +15,7 @@ public class ControlRodBundleModel : MinObservableObject
     public string Status
     {
         get => _status;
-        set => SetPropertyAndNotify(ref _status, value);
+        private set => SetPropertyAndNotify(ref _status, value);
     }
 
     private string _movementSpeed = string.Empty;
@@ -23,16 +24,16 @@ public class ControlRodBundleModel : MinObservableObject
     public string MovementSpeed
     {
         get => _movementSpeed;
-        set => SetPropertyAndNotify(ref _movementSpeed, value);
+        private set => SetPropertyAndNotify(ref _movementSpeed, value);
     }
 
-    private string _movementSpeedSecreasedHighTemperature = string.Empty;
+    private string _movementSpeedDecreasedHighTemperature = string.Empty;
 
     [JsonInclude]
     public string MovementSpeedDecreasedHighTemperature
     {
-        get => _movementSpeedSecreasedHighTemperature;
-        set => SetPropertyAndNotify(ref _movementSpeedSecreasedHighTemperature, value);
+        get => _movementSpeedDecreasedHighTemperature;
+        private set => SetPropertyAndNotify(ref _movementSpeedDecreasedHighTemperature, value);
     }
 
     private string _deformed = string.Empty;
@@ -41,7 +42,7 @@ public class ControlRodBundleModel : MinObservableObject
     public string Deformed
     {
         get => _deformed;
-        set => SetPropertyAndNotify(ref _deformed, value);
+        private set => SetPropertyAndNotify(ref _deformed, value);
     }
 
     private string _temperature = string.Empty;
@@ -50,7 +51,7 @@ public class ControlRodBundleModel : MinObservableObject
     public string Temperature
     {
         get => _temperature;
-        set => SetPropertyAndNotify(ref _temperature, value);
+        private set => SetPropertyAndNotify(ref _temperature, value);
     }
 
     private string _maxTemperature = string.Empty;
@@ -59,7 +60,7 @@ public class ControlRodBundleModel : MinObservableObject
     public string MaxTemperature
     {
         get => _maxTemperature;
-        set => SetPropertyAndNotify(ref _maxTemperature, value);
+        private set => SetPropertyAndNotify(ref _maxTemperature, value);
     }
 
     private string _orderedPosition = string.Empty;
@@ -67,8 +68,21 @@ public class ControlRodBundleModel : MinObservableObject
     [JsonInclude]
     public string OrderedPosition
     {
-        get => _orderedPosition;
-        set => SetPropertyAndNotify(ref _orderedPosition, value);
+        get => _userHasSetPosition ? _orderedPosition : _actualPosition;
+        set
+        {
+            var valueChanged = false;
+            if (!String.IsNullOrWhiteSpace(value))
+                valueChanged = SetPropertyAndNotify(ref _orderedPosition, value);
+            if (_nuclearesWeb == null)
+                throw new InvalidDataException("Run Init() first!");
+            if (valueChanged && _orderedPosition != string.Empty)
+            {
+                _ = _nuclearesWeb.SetDataToGameAsync("RODS_POS_ORDERED", value);
+                if (!_userHasSetPosition)
+                    _userHasSetPosition = true;
+            }
+        }
     }
 
     private string _actualPosition = string.Empty;
@@ -77,7 +91,14 @@ public class ControlRodBundleModel : MinObservableObject
     public string ActualPosition
     {
         get => _actualPosition;
-        set => SetPropertyAndNotify(ref _actualPosition, value);
+        private set
+        {
+            if (SetPropertyAndNotify(ref _actualPosition, value))
+            {
+                if (!_userHasSetPosition)
+                    OnPropertyChanged(nameof(OrderedPosition));
+            }
+        }
     }
 
     private string _reachedPosition = string.Empty;
@@ -86,7 +107,7 @@ public class ControlRodBundleModel : MinObservableObject
     public string ReachedPosition
     {
         get => _reachedPosition;
-        set => SetPropertyAndNotify(ref _reachedPosition, value);
+        private set => SetPropertyAndNotify(ref _reachedPosition, value);
     }
 
     private string _quantity = string.Empty;
@@ -95,7 +116,7 @@ public class ControlRodBundleModel : MinObservableObject
     public string Quantity
     {
         get => _quantity;
-        set => SetPropertyAndNotify(ref _quantity, value);
+        private set => SetPropertyAndNotify(ref _quantity, value);
     }
 
     private string _aligned = string.Empty;
@@ -104,7 +125,7 @@ public class ControlRodBundleModel : MinObservableObject
     public string Aligned
     {
         get => _aligned;
-        set => SetPropertyAndNotify(ref _aligned, value);
+        private set => SetPropertyAndNotify(ref _aligned, value);
     }
     #endregion
 

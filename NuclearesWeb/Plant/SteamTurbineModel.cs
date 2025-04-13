@@ -57,7 +57,6 @@ public class SteamTurbineModel : MinObservableObject
         return this;
     }
 
-
     public SteamTurbineModel RefreshAllData(CancellationToken cancellationToken = default) =>
         RefreshAllDataAsync(cancellationToken).GetAwaiter().GetResult();
 

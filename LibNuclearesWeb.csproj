@@ -14,4 +14,7 @@
         <PackageTags>nucleares;modding;</PackageTags>
         <PackageReleaseNotes>Initial Release.</PackageReleaseNotes>
     </PropertyGroup>
+    <ItemGroup>
+      <None Remove="LibNuclearesWeb.sln.DotSettings" />
+    </ItemGroup>
 </Project>

@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using LibNuclearesWeb.BaseClasses;
+using LibNuclearesWeb.Extensions;
 using LibNuclearesWeb.NuclearesWeb.Plant;
 using LibNuclearesWeb.NuclearesWeb.World;
 
@@ -9,16 +11,21 @@ namespace LibNuclearesWeb.NuclearesWeb;
 /// The main class for the NuclearesWeb library. This class is the main entry point for the library.
 /// </summary>
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[SuppressMessage(
+    "CodeQuality",
+    "IDE0079:Remove unnecessary suppression",
+    Justification = "ReSharper needs it to not complain about this class not being used directly."
+)]
 public class NuclearesWeb : MinObservableObject, IDisposable
 {
-    private const int DefaultPort = 8787;
-    private const string DefaultNetworkLocation = "127.0.0.1";
+    private const int DefaultPort = 8785;
+    private const string DefaultNetworkLocation = "localhost";
 
     private HttpClient _httpClient;
     private readonly bool _disposeHttpClient;
     private SemaphoreSlim _semaphore = new(10, 10);
     private CancellationTokenSource _cts = new();
-    private readonly TimeSpan _defaultRefreshInterval = TimeSpan.FromSeconds(5);
+    private readonly TimeSpan _defaultRefreshInterval = TimeSpan.FromSeconds(1);
     private Task? _refreshTask;
     private bool _disposed;
 
@@ -31,6 +38,15 @@ public class NuclearesWeb : MinObservableObject, IDisposable
     /// The main world model.
     /// </summary>
     public WorldModel MainWorld { get; }
+
+    [JsonIgnore]
+    public ObservableStopwatch RefreshTime { get; } = new();
+
+    [JsonIgnore]
+    public ObservableStopwatch TimeSinceLastRefresh { get; } = new();
+
+    private string _gameVersion;
+    public string GameVersion => _gameVersion ??= "Test";
 
     private string _networkLocation = DefaultNetworkLocation;
 
@@ -71,7 +87,6 @@ public class NuclearesWeb : MinObservableObject, IDisposable
         Port = port;
         _disposeHttpClient = client == null;
         _httpClient = client ?? new();
-
         MainWorld = new(this);
         MainPlant = new(this);
 
@@ -177,8 +192,13 @@ public class NuclearesWeb : MinObservableObject, IDisposable
         CancellationToken cancellationToken = default
     )
     {
+        if (AutoRefresh && _refreshTask != null && _refreshTask.IsCompleted)
+            TimeSinceLastRefresh.Stop();
+        RefreshTime.Restart();
         _ = await MainPlant.RefreshAllDataAsync(cancellationToken);
         _ = await MainWorld.RefreshAllDataAsync(cancellationToken);
+        RefreshTime.Stop();
+        TimeSinceLastRefresh.Restart();
         return this;
     }
 
@@ -219,6 +239,35 @@ public class NuclearesWeb : MinObservableObject, IDisposable
     }
 
     /// <summary>
+    /// Set data on the game server.
+    /// </summary>
+    /// <param name="valueName">The name of the value to set.</param>
+    /// <param name="data">The value to set.</param>
+    /// <param name="cancellationToken">CancellationToken, optional.</param>
+    /// <returns>A Task representing the completion of the request.</returns>
+    public async Task SetDataToGameAsync(
+        string valueName,
+        string data,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await _semaphore.WaitAsync(cancellationToken);
+        try
+        {
+            var url =
+                $"http://{NetworkLocation}:{Port}/?Variable={Uri.EscapeDataString(valueName)}&Value={data}";
+            var response = await _httpClient
+                .PostAsync(url, null, cancellationToken)
+                .ConfigureAwait(false);
+            _ = response.EnsureSuccessStatusCode();
+        }
+        finally
+        {
+            _ = _semaphore.Release();
+        }
+    }
+
+    /// <summary>
     /// Dispose of the NuclearesWeb object.
     /// </summary>
     public void Dispose()
@@ -239,6 +288,7 @@ public class NuclearesWeb : MinObservableObject, IDisposable
         {
             if (_disposeHttpClient)
                 _httpClient.Dispose();
+            RefreshTime.Dispose();
             _semaphore.Dispose();
             _cts.Cancel();
             _cts.Dispose();

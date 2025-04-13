@@ -23,25 +23,25 @@ public class PlantModel : MinObservableObject
     [JsonInclude]
     public List<SteamGeneratorModel> SteamGeneratorList { get; } = [];
 
-    private string _numberOfCoreCirculationPumps = string.Empty;
+    private int _numberOfCoreCirculationPumps = 0;
 
     /// <summary>
     /// Number of core circulation pumps. Max (should be) 7.
     /// </summary>
     [JsonInclude]
-    public string NumberOfCoreCirculationPumps
+    public int NumberOfCoreCirculationPumps
     {
         get => _numberOfCoreCirculationPumps;
         set => SetPropertyAndNotify(ref _numberOfCoreCirculationPumps, value);
     }
 
-    private string _numberOfFreightPumps = string.Empty;
+    private int _numberOfFreightPumps = 0;
 
     /// <summary>
     /// The number of installed freight pumps. Max (should be) 5.
     /// </summary>
     [JsonInclude]
-    public string NumberOfFreightPumps
+    public int NumberOfFreightPumps
     {
         get => _numberOfFreightPumps;
         set => SetPropertyAndNotify(ref _numberOfFreightPumps, value);
@@ -98,8 +98,8 @@ public class PlantModel : MinObservableObject
         string derivedKw
     )
     {
-        NumberOfCoreCirculationPumps = numCoolPump;
-        NumberOfFreightPumps = numUncoolPump;
+        NumberOfCoreCirculationPumps = int.Parse(numCoolPump);
+        NumberOfFreightPumps = int.Parse(numUncoolPump);
         AuxDivertSurplusFromKw = divertKw;
         AuxEffectivelyDerivedEnergyKw = derivedKw;
         return this;

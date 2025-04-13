@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Globalization;
+using System.Text.Json.Serialization;
 using LibNuclearesWeb.BaseClasses;
 
 namespace LibNuclearesWeb.NuclearesWeb.World;
@@ -11,27 +12,36 @@ public class WorldModel : MinObservableObject
     private NuclearesWeb? _nuclearesWeb;
 
     #region Notifiable Properties.
-    private string _time = string.Empty;
-    
+    private TimeOnly _time = new();
+
     [JsonInclude]
-    public string Time
+    public TimeOnly Time
     {
         get => _time;
         private set => SetPropertyAndNotify(ref _time, value);
     }
 
-    private string _timeStamp = string.Empty;
+    private int _timeStamp = 0;
 
     [JsonInclude]
-    public string TimeStamp
+    public int TimeStamp
     {
         get => _timeStamp;
-        private set => SetPropertyAndNotify(ref _timeStamp, value);
+        private set
+        {
+            var updated = SetPropertyAndNotify(ref _timeStamp, value);
+            if (updated)
+                OnPropertyChanged(nameof(CurrentDay));
+        }
     }
+
+    [JsonIgnore]
+    public int CurrentDay => _timeStamp / 60 / 24;
+
     #endregion
-    
+
     /// <summary>
-    /// Empty constructor for deserialization. Call Init() afterwords!
+    /// Empty constructor for deserialization. Call Init() afterwards!
     /// </summary>
     public WorldModel() { }
 
@@ -39,7 +49,7 @@ public class WorldModel : MinObservableObject
     {
         _nuclearesWeb = nuclearesWeb;
         if (_nuclearesWeb.AutoRefresh)
-            RefreshAllData();
+            _ = RefreshAllData();
     }
 
     /// <summary>
@@ -62,7 +72,9 @@ public class WorldModel : MinObservableObject
     )
     {
         _nuclearesWeb = nuclearesWeb;
-        return _nuclearesWeb.AutoRefresh ? RefreshAllDataAsync(cancellationToken) : Task.FromResult(this);
+        return _nuclearesWeb.AutoRefresh
+            ? RefreshAllDataAsync(cancellationToken)
+            : Task.FromResult(this);
     }
 
     /// <summary>
@@ -70,9 +82,8 @@ public class WorldModel : MinObservableObject
     /// Prefer RefreshAllDataAsync() where possible!
     /// </summary>
     /// <returns>A WorldModel with all data and all child object data updated.</returns>
-    public WorldModel RefreshAllData() =>
-        RefreshAllDataAsync().GetAwaiter().GetResult();
-    
+    public WorldModel RefreshAllData() => RefreshAllDataAsync().GetAwaiter().GetResult();
+
     /// <summary>
     /// Refresh all data.
     /// </summary>
@@ -83,8 +94,14 @@ public class WorldModel : MinObservableObject
     {
         if (_nuclearesWeb == null)
             throw new InvalidOperationException("NuclearesWeb object not set");
-        Time = await _nuclearesWeb.GetDataFromGameAsync("TIME", cancellationToken);
-        TimeStamp = await _nuclearesWeb.GetDataFromGameAsync("TIME_STAMP", cancellationToken);
+        Time = TimeOnly.ParseExact(
+            await _nuclearesWeb.GetDataFromGameAsync("TIME", cancellationToken),
+            "HH:mm",
+            CultureInfo.InvariantCulture
+        );
+        TimeStamp = int.Parse(
+            await _nuclearesWeb.GetDataFromGameAsync("TIME_STAMP", cancellationToken)
+        );
         return this;
     }
 }
