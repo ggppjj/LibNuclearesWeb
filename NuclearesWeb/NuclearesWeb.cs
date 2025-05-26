@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using LibNuclearesWeb.BaseClasses;
+﻿using LibNuclearesWeb.BaseClasses;
 using LibNuclearesWeb.NuclearesWeb.Plant;
 using LibNuclearesWeb.NuclearesWeb.World;
 
@@ -8,11 +7,10 @@ namespace LibNuclearesWeb.NuclearesWeb;
 /// <summary>
 /// The main class for the NuclearesWeb library. This class is the main entry point for the library.
 /// </summary>
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public class NuclearesWeb : MinObservableObject, IDisposable
 {
-    private const int DefaultPort = 8787;
-    private const string DefaultNetworkLocation = "127.0.0.1";
+    private const int DefaultPort = 8785;
+    private const string DefaultNetworkLocation = "localhost";
 
     private HttpClient _httpClient;
     private readonly bool _disposeHttpClient;
@@ -61,14 +59,14 @@ public class NuclearesWeb : MinObservableObject, IDisposable
     /// <param name="autoRefresh">Whether to autoload and refresh data in the background on a default 5 second timer.</param>
     /// <param name="client">HttpClient to use, optional</param>
     public NuclearesWeb(
-        string networkLocation = DefaultNetworkLocation,
-        int port = DefaultPort,
+        string? networkLocation = null,
+        int? port = null,
         bool autoRefresh = false,
         HttpClient? client = null
     )
     {
-        NetworkLocation = networkLocation;
-        Port = port;
+        NetworkLocation = networkLocation ?? DefaultNetworkLocation;
+        Port = port ?? DefaultPort;
         _disposeHttpClient = client == null;
         _httpClient = client ?? new();
 
